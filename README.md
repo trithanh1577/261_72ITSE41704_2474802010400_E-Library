@@ -125,14 +125,14 @@ Each member will commit their own work using their own GitHub account.
 
 ```text
 .
-├── docs/                 # Diagrams, wireframes, and reports
+├── docs/
 ├── src/
 │   ├── main/
-│   │   ├── java/        # Java source code
-│   │   └── resources/   # Templates, static files, and configuration
+│   │   ├── java/
+│   │   └── resources/
 │   └── test/
-│       └── java/        # Automated tests
-├── tests/                # Test cases and test evidence
+│       └── java/
+├── tests/
 ├── .gitignore
 ├── pom.xml
 └── README.md
