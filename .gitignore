@@ -1,23 +1,11 @@
 # Maven build output
 target/
 
-# IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
+# Java compiled files
+*.class
 
 # Visual Studio Code
 .vscode/
-
-# Eclipse
-.classpath
-.project
-.settings/
-
-# Java compiled files
-*.class
 
 # Logs
 *.log
@@ -26,8 +14,16 @@ logs/
 # Environment variables and secrets
 .env
 .env.*
+!.env.example
+
+# Local Spring Boot configuration
 application-local.properties
 application-local.yml
+application-secrets.properties
+application-secrets.yml
+
+# Database dumps
+database-dumps/
 
 # Operating system files
 .DS_Store
