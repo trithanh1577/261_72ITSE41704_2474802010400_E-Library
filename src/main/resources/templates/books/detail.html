@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Book details')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content narrow">
+    <a class="back-link" th:href="@{/books}">← Back to catalogue</a>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <section class="detail-header">
+        <div class="book-cover large" th:text="${#strings.substring(book.title, 0, 1).toUpperCase()}">E</div>
+        <div><p class="eyebrow" th:text="${book.category}">Category</p><h1 th:text="${book.title}">Book title</h1><p class="lead" th:text="${book.author}">Author</p><p class="muted" th:text="|ISBN: ${book.isbn}|">ISBN</p><p th:text="${book.description}">Description</p><div class="availability"><strong th:text="${availableCount}">0</strong> available copy/copies</div></div>
+    </section>
+    <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">PHYSICAL COPIES</p><h2>Availability</h2></div><a class="button primary" th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/books/{id}/copies/new(id=${book.id})}">Add copy</a></div>
+        <table class="data-table" th:if="${!#lists.isEmpty(copies)}"><thead><tr><th>Copy code</th><th>Status</th><th th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}">Action</th></tr></thead><tbody><tr th:each="copy : ${copies}"><td th:text="${copy.copyCode}">CC-001</td><td><span class="status" th:classappend="${copy.status.name().toLowerCase()}" th:text="${copy.status}">AVAILABLE</span></td><td th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}"><a th:href="@{/copies/{id}/edit(id=${copy.id})}">Edit</a></td></tr></tbody></table>
+        <p class="muted" th:if="${#lists.isEmpty(copies)}">No physical copies have been registered yet.</p>
+    </section>
+    <div class="button-row" th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}"><a class="button secondary" th:href="@{/books/{id}/edit(id=${book.id})}">Edit book</a><form th:action="@{/books/{id}/deactivate(id=${book.id})}" method="post"><button class="button danger-outline" type="submit">Deactivate</button></form></div>
+</main>
+</body>
+</html>

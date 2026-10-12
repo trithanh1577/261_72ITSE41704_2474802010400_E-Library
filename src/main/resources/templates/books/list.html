@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Catalogue')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content">
+    <div class="page-heading">
+        <div><p class="eyebrow">CATALOGUE</p><h1>Find a book</h1><p class="muted">Search active titles by title, author, ISBN or category.</p></div>
+        <a class="button primary" th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/books/new}">Add book</a>
+    </div>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <form class="search-bar" th:action="@{/books}" method="get">
+        <input type="search" name="keyword" th:value="${keyword}" placeholder="Try Java, Martin, ISBN or Software">
+        <button class="button secondary" type="submit">Search</button>
+        <a class="button quiet" th:href="@{/books}">Clear</a>
+    </form>
+    <div class="empty-state" th:if="${#lists.isEmpty(books)}"><h2>No active books found</h2><p class="muted">Try another search term or ask a librarian to add a title.</p></div>
+    <div class="book-grid" th:unless="${#lists.isEmpty(books)}">
+        <article class="book-card" th:each="book : ${books}">
+            <div class="book-cover" th:text="${#strings.substring(book.title, 0, 1).toUpperCase()}">E</div>
+            <div class="book-card-body"><p class="tag" th:text="${book.category}">Category</p><h2><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a></h2><p class="muted" th:text="${book.author}">Author</p><p class="small-text" th:text="|ISBN ${book.isbn}|">ISBN</p></div>
+        </article>
+    </div>
+</main>
+</body>
+</html>

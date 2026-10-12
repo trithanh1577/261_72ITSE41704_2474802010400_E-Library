@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | E-Library'">E-Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:fragment="nav" class="topbar">
+    <div class="container nav-inner">
+        <a class="brand" th:href="@{/books}">E-Library</a>
+        <div class="nav-actions">
+            <span class="role-badge" th:if="${#authorization.expression('isAuthenticated()')}"
+                  th:text="${#authorization.expression('hasRole(''LIBRARIAN'')') ? 'Librarian' : 'Member'}">Member</span>
+            <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
+                <button class="link-button" type="submit">Sign out</button>
+            </form>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

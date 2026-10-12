@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Copy form')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content narrow">
+    <a class="back-link" th:href="@{/books/{id}(id=${book.id})}">← Back to book</a>
+    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN / PHYSICAL COPY</p><h1 th:text="${pageTitle}">Copy form</h1><p class="muted" th:text="${book.title}">Book</p></div></div>
+    <div class="alert danger" th:if="${formError}" th:text="${formError}"></div>
+    <form class="panel stack-form" th:object="${copyForm}" method="post" th:action="${formAction}">
+        <label for="copyCode">Copy code</label><input id="copyCode" type="text" th:field="*{copyCode}" maxlength="50" placeholder="e.g. JAVA-002" required><p class="field-error" th:errors="*{copyCode}"></p>
+        <label for="status">Status</label><select id="status" th:field="*{status}"><option th:each="status : ${statuses}" th:value="${status}" th:text="${status}">AVAILABLE</option></select><p class="field-error" th:errors="*{status}"></p>
+        <div class="button-row"><button class="button primary" type="submit">Save copy</button><a class="button quiet" th:href="@{/books/{id}(id=${book.id})}">Cancel</a></div>
+    </form>
+</main>
+</body>
+</html>

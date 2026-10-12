@@ -1,0 +1,36 @@
+classDiagram
+    class UserAccount {
+      Long id
+      String username
+      String passwordHash
+      Role role
+      boolean enabled
+    }
+    class Book {
+      Long id
+      String title
+      String isbn
+      String author
+      String category
+      boolean active
+    }
+    class BookCopy {
+      Long id
+      String copyCode
+      CopyStatus status
+      Long version
+    }
+    class BookService {
+      search(keyword)
+      countAvailableCopies(bookId)
+      save(book)
+    }
+    class BookCopyService {
+      addCopy(bookId, copyCode)
+      update(id, copyCode, status)
+    }
+    UserAccount ..> Role
+    Book "1" o-- "0..*" BookCopy
+    BookService --> Book
+    BookService --> BookCopy
+    BookCopyService --> BookCopy

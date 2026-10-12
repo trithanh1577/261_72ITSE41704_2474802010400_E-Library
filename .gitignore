@@ -32,3 +32,15 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# IDE metadata
+.idea/
+*.iml
+
+# Java tooling
+.classpath
+.project
+.settings/
+
+# Local build tools downloaded for verification
+.tools/
