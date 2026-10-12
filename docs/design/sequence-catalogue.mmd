@@ -1,0 +1,16 @@
+sequenceDiagram
+    actor Member
+    participant Page as Catalogue page
+    participant Controller as BookController
+    participant Service as BookService
+    participant Repo as BookRepository
+    participant DB as MySQL
+    Member->>Page: Enter keyword and submit
+    Page->>Controller: GET /books?keyword=java
+    Controller->>Service: search("java")
+    Service->>Repo: searchActive("java")
+    Repo->>DB: Parameterised JPA query
+    DB-->>Repo: Active matching books
+    Repo-->>Service: List<Book>
+    Service-->>Controller: List<Book>
+    Controller-->>Page: Render results or empty state

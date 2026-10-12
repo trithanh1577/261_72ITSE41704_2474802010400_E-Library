@@ -1,139 +1,119 @@
 # E-Library and Resource Circulation System
 
-## Project Information
+Application Programming Project, course 72ITSE41704, class group 261_72ITSE41704_01.
 
-- **Course:** 72ITSE41704 - Application Programming Project
-- **Class group:** 261_72ITSE41704_01
-- **Project:** E-Library and Resource Circulation System
-- **Repository:** 261_72ITSE41704_2474802010400_E-Library
-- **Development environment:** Visual Studio Code
-- **Status:** In development
+## Week 5 checkpoint
 
-## Project Overview
+This repository contains the first end-to-end slice required by the Week 5 plan:
 
-The E-Library and Resource Circulation System is designed to help a small library manage books and borrowing activities more efficiently.
+- sign in/sign out with separate Librarian and Member permissions;
+- catalogue search by title, author, ISBN or category;
+- librarian book create, edit and deactivate actions;
+- physical book-copy create, status update and availability display;
+- MySQL persistence through Spring Data JPA;
+- validation on the main book and copy forms;
+- seed data for a local demonstration;
+- Week 5 unit and repository tests;
+- architecture, requirements, use cases, ERD, wireframe notes and work journal in `docs/`.
 
-Librarians can manage books, book copies, members, loans, returns, reservations, and overdue fines. Library members can search for books, check availability, submit borrowing or reservation requests, and view their borrowing status.
+Borrowing requests, loans, returns, reservations, fines and member management are intentionally not implemented in this checkpoint. They remain in the later slices of the proposal.
 
-The system aims to reduce manual record-keeping errors, enforce borrowing rules, and provide accurate information about library resources.
-
-## User Roles
-
-### Librarian
-
-- Manage books and book copies
-- Manage library members
-- Process borrowing requests
-- Create loans and confirm returns
-- Manage reservations
-- Monitor overdue loans and fines
-
-### Library Member
-
-- Search for books
-- View book details and availability
-- Submit borrowing requests
-- Reserve unavailable books
-- View current loans, borrowing history, and fines
-
-## Planned Use Cases
-
-1. Sign in and sign out
-2. Manage books and book copies
-3. Manage library members
-4. Search for books and check availability
-5. Submit and process borrowing requests
-6. Create and manage loans
-7. Process book returns
-8. Create and manage reservations
-9. Calculate and manage overdue fines
-10. View borrowing history and current status
-
-## Planned Technology Stack
+## Technology stack
 
 | Technology | Purpose |
 |---|---|
-| Java | Main programming language |
-| Spring Boot | Web application development |
-| Spring Data JPA | Database access and persistence |
-| Spring Security | Authentication and role-based authorisation |
-| Bean Validation | Input validation |
-| MySQL | Relational database |
-| Thymeleaf | Server-side web-page rendering |
-| HTML/CSS and Bootstrap | Web user interface |
-| Maven | Dependency management and project build |
-| JUnit 5 | Automated testing |
-| Git and GitHub | Version control and collaboration |
-| Visual Studio Code | Development environment |
+| Java 17 | Object-oriented application code |
+| Spring Boot 3.3 | Web application framework |
+| Spring Data JPA | Repository and persistence layer |
+| Spring Security | Login and role-based authorisation |
+| Thymeleaf | Server-side HTML rendering |
+| Bean Validation | Server-side form validation |
+| MySQL | Persistent relational database |
+| Maven | Build and dependency management |
+| JUnit 5 + Mockito | Automated tests |
+| Bootstrap-compatible CSS | Consistent web interface |
 
-## Planned Architecture
+## Run locally
 
-The application will follow a layered architecture:
+### Prerequisites
 
-- **Presentation layer:** Controllers and Thymeleaf pages
-- **Business layer:** Services and business rules
-- **Data-access layer:** Spring Data JPA repositories
-- **Persistence layer:** MySQL database
+- JDK 17 or later;
+- Maven 3.9 or later;
+- MySQL 8 or later.
 
-Business rules will be implemented in the service layer, not in controllers or user-interface code.
+Create the database once:
 
-## Planned Domain Classes
+```sql
+CREATE DATABASE elibrary CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-The initial domain model includes:
+Set connection variables if the local MySQL account is not the default:
 
-- `UserAccount`
-- `Librarian`
-- `Member`
-- `Book`
-- `BookCopy`
-- `Author`
-- `Category`
-- `Loan`
-- `Reservation`
-- `Fine`
+```powershell
+$env:DB_URL = "jdbc:mysql://localhost:3306/elibrary?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+$env:DB_USERNAME = "root"
+$env:DB_PASSWORD = "your-local-password"
+```
 
-## Planned Business Rules
+Run the application:
 
-- A book copy cannot be borrowed while it is already on loan.
-- A member cannot exceed the permitted borrowing limit.
-- A member with an unresolved overdue loan may be prevented from borrowing.
-- Overdue fines are calculated according to the number of late days.
-- An unavailable book can be reserved.
-- Reservations are processed in a defined order.
+```powershell
+mvn spring-boot:run
+```
 
-## Quality Requirements
+Open `http://localhost:8080`.
 
-- Users will have different permissions according to their roles.
-- Application data will be stored in MySQL and will remain available after restart.
-- Every user input will be validated.
-- Invalid input will display a clear message without crashing the application.
-- Database-access and input-processing failures will be handled appropriately.
-- The application will provide a consistent web graphical user interface.
-- At least 10 test cases will be documented with input, expected result, actual result, and pass/fail status.
-- Important business rules will be covered by automated unit tests.
+The first run creates demo accounts and sample catalogue data when the tables are empty:
 
-## Team Members
-
-| Student ID | Full Name | Planned Role |
+| Username | Password | Role |
 |---|---|---|
-| 2474802010400 | Nguyễn Thành Trí | Team Leader, Backend and Database Developer |
-| 2474802016786 | Phạm Thị Khánh Ngân | Frontend and Feature Developer |
+| `admin` | `admin123` | Librarian |
+| `member` | `member123` | Library Member |
 
-Each member will commit their own work using their own GitHub account.
+These accounts are for local development only and must be changed or removed before a real deployment.
 
-## Repository Structure
+Run tests with:
+
+```powershell
+mvn test
+```
+
+## Architecture
 
 ```text
-.
-├── docs/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   └── resources/
-│   └── test/
-│       └── java/
-├── tests/
-├── .gitignore
-├── pom.xml
-└── README.md
+Thymeleaf pages / Controllers
+          ↓
+Services and domain rules
+          ↓
+Spring Data JPA repositories
+          ↓
+MySQL
 ```
+
+Business decisions belong in services or domain classes rather than templates or controllers. See [`docs/design/architecture.md`](docs/design/architecture.md).
+
+## Team
+
+| Student ID | Name | Planned role |
+|---|---|---|
+| 2474802010400 | Nguyễn Thành Trí | Team leader, backend and database |
+| 2474802016786 | Phạm Thị Khánh Ngân | Frontend and feature integration |
+
+Each member should commit their own work under their own Git identity. The repository history is part of the course evidence.
+
+## Repository map
+
+```text
+src/main/java/com/elibrary/       Java application
+src/main/resources/templates/     Thymeleaf pages
+src/main/resources/static/        CSS
+src/test/java/com/elibrary/       Unit and repository tests
+docs/                             Week 1–5 evidence and design artefacts
+```
+
+The development order is recorded in [`docs/weekly-progress.md`](docs/weekly-progress.md),
+from the Week 1 scope decision through the Week 5 checkpoint.
+
+## Honest Week 5 limitations
+
+This is a checkpoint, not the final system. The current version has no loan transaction, reservation queue, fine calculation, member CRUD, pagination, audit trail or optimistic locking workflow. The copy `@Version` field is present as a first persistence safeguard, but conflict handling still needs a later iteration. These limitations and the initial setup problem caused by a missing local JDK/Maven are recorded in [`docs/week5-status.md`](docs/week5-status.md) and [`docs/journal.md`](docs/journal.md).

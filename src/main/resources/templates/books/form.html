@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Book form')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content narrow">
+    <a class="back-link" th:href="@{/books}">← Back to catalogue</a>
+    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1 th:text="${pageTitle}">Book form</h1></div></div>
+    <div class="alert danger" th:if="${formError}" th:text="${formError}"></div>
+    <form class="panel stack-form" th:action="@{/books/save}" th:object="${book}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <label for="title">Title</label><input id="title" type="text" th:field="*{title}" maxlength="180" required><p class="field-error" th:errors="*{title}"></p>
+        <label for="isbn">ISBN</label><input id="isbn" type="text" th:field="*{isbn}" maxlength="30" required><p class="field-error" th:errors="*{isbn}"></p>
+        <label for="author">Author</label><input id="author" type="text" th:field="*{author}" maxlength="160" required><p class="field-error" th:errors="*{author}"></p>
+        <label for="category">Category</label><input id="category" type="text" th:field="*{category}" maxlength="100" required><p class="field-error" th:errors="*{category}"></p>
+        <label for="description">Description</label><textarea id="description" th:field="*{description}" maxlength="1000" rows="5"></textarea><p class="field-error" th:errors="*{description}"></p>
+        <div class="button-row"><button class="button primary" type="submit">Save book</button><a class="button quiet" th:href="@{/books}">Cancel</a></div>
+    </form>
+</main>
+</body>
+</html>

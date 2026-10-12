@@ -1,0 +1,14 @@
+flowchart LR
+    L[Librarian]
+    M[Library Member]
+    UC1((Sign in / sign out))
+    UC2((Manage books and copies))
+    UC3((Search books))
+    UC4((Check availability))
+    L --- UC1
+    M --- UC1
+    L --- UC2
+    L --- UC3
+    M --- UC3
+    L --- UC4
+    M --- UC4

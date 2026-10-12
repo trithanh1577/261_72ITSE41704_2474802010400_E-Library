@@ -1,0 +1,26 @@
+erDiagram
+    USER_ACCOUNTS {
+      bigint id PK
+      varchar username UK
+      varchar password_hash
+      varchar display_name
+      varchar role
+      boolean enabled
+    }
+    BOOKS {
+      bigint id PK
+      varchar isbn UK
+      varchar title
+      varchar author
+      varchar category
+      varchar description
+      boolean active
+    }
+    BOOK_COPIES {
+      bigint id PK
+      bigint book_id FK
+      varchar copy_code UK
+      varchar status
+      bigint version
+    }
+    BOOKS ||--o{ BOOK_COPIES : contains
