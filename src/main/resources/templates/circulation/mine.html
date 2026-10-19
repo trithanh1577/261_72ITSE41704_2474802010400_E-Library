@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My activity')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content">
+    <div class="page-heading"><div><p class="eyebrow">MEMBER</p><h1>My activity</h1><p class="muted">Your requests, loans and return fines.</p></div></div>
+    <section class="panel"><h2>Borrowing requests</h2>
+        <table class="data-table" th:if="${!#lists.isEmpty(requests)}"><thead><tr><th>Book</th><th>Requested</th><th>Status</th><th>Decision</th></tr></thead><tbody>
+            <tr th:each="request : ${requests}"><td th:text="${request.book.title}">Book</td><td th:text="${#temporals.format(request.requestedAt, 'yyyy-MM-dd')}">Date</td><td th:text="${request.status}">Status</td><td th:text="${request.decisionNote == null ? '—' : request.decisionNote}">Decision</td></tr>
+        </tbody></table><p class="muted" th:if="${#lists.isEmpty(requests)}">You have not submitted a request.</p>
+    </section>
+    <section class="panel"><h2>Loans</h2>
+        <table class="data-table" th:if="${!#lists.isEmpty(loans)}"><thead><tr><th>Book</th><th>Copy</th><th>Due</th><th>Returned</th><th>Fine</th></tr></thead><tbody>
+            <tr th:each="loan : ${loans}"><td th:text="${loan.copy.book.title}">Book</td><td th:text="${loan.copy.copyCode}">Copy</td><td th:text="${loan.dueDate}">Due</td><td th:text="${loan.returnedAt == null ? 'Active' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td><td th:text="|VND ${loan.fineAmount}|">VND 0</td></tr>
+        </tbody></table><p class="muted" th:if="${#lists.isEmpty(loans)}">You have no loan records.</p>
+    </section>
+</main>
+</body>
+</html>

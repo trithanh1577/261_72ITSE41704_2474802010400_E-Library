@@ -20,6 +20,20 @@ classDiagram
       CopyStatus status
       Long version
     }
+    class BorrowRequest {
+      Long id
+      LocalDateTime requestedAt
+      BorrowRequestStatus status
+      String memberNote
+      String decisionNote
+    }
+    class Loan {
+      Long id
+      LocalDateTime issuedAt
+      LocalDate dueDate
+      LocalDateTime returnedAt
+      BigDecimal fineAmount
+    }
     class BookService {
       search(keyword)
       countAvailableCopies(bookId)
@@ -29,8 +43,21 @@ classDiagram
       addCopy(bookId, copyCode)
       update(id, copyCode, status)
     }
+    class CirculationService {
+      submitRequest(username, bookId, note)
+      approveRequest(requestId)
+      rejectRequest(requestId, reason)
+      returnLoan(loanId)
+    }
     UserAccount ..> Role
     Book "1" o-- "0..*" BookCopy
+    UserAccount "1" --> "0..*" BorrowRequest
+    Book "1" --> "0..*" BorrowRequest
+    UserAccount "1" --> "0..*" Loan
+    BookCopy "1" --> "0..*" Loan
+    BorrowRequest "1" --> "0..1" Loan
     BookService --> Book
     BookService --> BookCopy
     BookCopyService --> BookCopy
+    CirculationService --> BorrowRequest
+    CirculationService --> Loan

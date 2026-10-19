@@ -1,6 +1,6 @@
 # Week 5 test-case plan and results
 
-The full course test log will grow in Weeks 6–10. The following cases cover the current slice. The `Actual result` column must be updated after running the application on the team's configured machine; it is not acceptable to claim a run that did not happen.
+The full course test log grows with each iteration. These cases cover the Week 5 catalogue slice. Week 6 circulation cases are in [`test-cases-week6.md`](test-cases-week6.md). The `Actual result` column must be updated after running the application on the team's configured machine.
 
 | ID | Requirement | Precondition | Input / steps | Expected result | Actual result | Status |
 |---|---|---|---|---|---|---|

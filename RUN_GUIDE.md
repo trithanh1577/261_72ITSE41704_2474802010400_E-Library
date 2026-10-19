@@ -1,124 +1,91 @@
-# Week 5 run guide
+# Local run and Git handoff
 
-## 1. Install local tools
+## 1. Prerequisites
 
-Install JDK 17+, Maven 3.9+ and MySQL 8+. Confirm:
+- JDK 17 or later
+- Maven 3.9 or later
+- MySQL 8 or later
+
+Check the Java and Maven installations:
 
 ```powershell
 java -version
 mvn -version
 ```
 
-## 2. Create the database
+## 2. Create the local database
+
+Run this once in MySQL:
 
 ```sql
 CREATE DATABASE elibrary CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## 3. Configure the application
-
-The default connection is `root` with an empty password on `localhost:3306`. For another setup:
+The defaults use `root` with an empty password. If that is not your local
+setup, set the connection values in PowerShell before starting the app:
 
 ```powershell
 $env:DB_URL = "jdbc:mysql://localhost:3306/elibrary?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
 $env:DB_USERNAME = "root"
-$env:DB_PASSWORD = "your-password"
+$env:DB_PASSWORD = "your-local-password"
 ```
 
-## 4. Test and run
+Do not put a real password in a committed file. The demo accounts are seeded
+for local coursework only: `admin` / `admin123` (Librarian) and `member` /
+`member123` (Member).
+
+## 3. Test and run
+
+From the repository folder:
 
 ```powershell
 mvn test
 mvn spring-boot:run
 ```
 
-Browse to `http://localhost:8080`. The initial seed accounts are documented in `README.md`. Change them before any non-local use.
-
-## 5. Smoke test
-
-1. Sign in as `admin`.
-2. Search for `Java` and open a book.
-3. Add a new book and one physical copy.
-4. Edit the copy status and confirm the detail page changes.
-5. Sign out and sign in as `member`.
-6. Confirm that the member can search but cannot open librarian book/copy forms.
-7. Restart the application and confirm the new book remains in MySQL.
-
-## 6. Push the project to GitHub when it is ready
-
-The project folder currently does not have a Git repository or a remote
-address. Do this part only after checking the files and deciding that the
-Week 5 checkpoint is ready to share.
-
-The course guideline requires the repository name to follow
-`261_72ITSE41704_<TeamLeaderID>_<ShortTopic>`. The revised proposal uses:
-
-```text
-261_72ITSE41704_2474802010400_E-Library
-```
-
-### Create the GitHub repository
-
-1. Sign in to GitHub and create a new empty repository.
-2. Use the name `261_72ITSE41704_2474802010400_E-Library`.
-3. Do not add a second README, `.gitignore` or licence during creation.
-4. Add the lecturer as a collaborator, or make the repository public as
-   permitted by the course guideline.
-5. Copy the repository HTTPS address:
-
-```text
-https://github.com/trithanh1577/261_72ITSE41704_2474802010400_E-Library.git
-```
-
-### Create the initial main branch
-
-For the Week 1 repository setup, create the first small commit with the
-README and ignore rules:
+If Maven reports that `com.elibrary` packages cannot be found while compiling
+tests from this Vietnamese-named Windows folder, try a temporary drive mapping:
 
 ```powershell
-git --version
-git init
-git branch -M main
-git add .gitignore README.md
+$repoPath = (Get-Location).Path
+subst Z: $repoPath
+Set-Location Z:\
+mvn test
+```
+
+Open `http://localhost:8080`. The app uses the configured MySQL database; it
+does not host a public website.
+
+## 4. Week 5/6 smoke checks
+
+1. Sign in as `admin`, search for a title, open its details and add a copy.
+2. Sign in as `member`; confirm catalogue access works but librarian book and
+   copy operations are denied.
+3. As the member, submit a borrowing request and open **My activity**.
+4. As the librarian, approve the request; check the loan due date and copy
+   status, then record the return.
+5. Repeat with a late return and check the fine. Try to return it a second
+   time; the saved return should not change.
+6. Restart the app and confirm the records remain in MySQL.
+
+Record the observed outcome and date in the Week 5/6 test tables. The manual
+checks are not marked passed until they have been run on the team's setup.
+
+## 5. Git handoff for Ngan3112
+
+Week 6 is on the local branch `feature/week-6-circulation`, based on the Week 5
+branch. Review the changes and test results before committing. Use Ngan's own
+GitHub credentials and configured Git identity for the commit and push:
+
+```powershell
+git switch feature/week-6-circulation
 git status
-git commit -m "Initialise repository with README and gitignore"
-git remote add origin https://github.com/trithanh1577/261_72ITSE41704_2474802010400_E-Library.git
-git push -u origin main
-```
-
-Before `git commit`, check `git status` and make sure that passwords, local
-database files, `target/`, `.tools/` and IDE settings are not included.
-The existing `.gitignore` excludes the generated build folders and common
-local files. Never commit a real MySQL password.
-
-### Submit the Week 5 implementation through a pull request
-
-Do not put the whole Week 5 implementation directly on `main`. Create a
-short-lived feature branch, commit the actual work, push the branch and open a
-pull request:
-
-```powershell
-git switch -c feature/week-5-catalogue
-git add -p
+git diff --check
+git add -A
 git status
-git commit -m "Implement Week 5 catalogue checkpoint"
-git push -u origin feature/week-5-catalogue
+git commit -m "Implement Week 6 circulation workflow"
+git push -u origin feature/week-6-circulation
 ```
 
-Open a pull request from `feature/week-5-catalogue` into `main`, review it
-with the other member, and merge it only after the project builds. Then tag
-the merged Week 5 checkpoint:
-
-```powershell
-git switch main
-git pull
-git tag -a v0.1 -m "Week 5: first end-to-end slice"
-git push origin v0.1
-```
-
-For later weeks, repeat the same branch and pull-request process. Create
-`v0.2` at Week 7 and `v1.0` at Week 9. Use the real week and work completed in
-each message. Do not create fake old commits to make the history look longer.
-
-Each member must commit their own work using their own GitHub account. Do not
-have one person push all contributions under one account.
+The push uploads a branch; it does not publish or host the web application.
+Do not include `.tools/`, `target/`, IDE state, database dumps or credentials.

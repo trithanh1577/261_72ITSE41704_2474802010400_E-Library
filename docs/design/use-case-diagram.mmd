@@ -5,6 +5,10 @@ flowchart LR
     UC2((Manage books and copies))
     UC3((Search books))
     UC4((Check availability))
+    UC5((Submit borrowing request))
+    UC6((Review request and issue loan))
+    UC7((Record return and fine))
+    UC8((View own requests and loans))
     L --- UC1
     M --- UC1
     L --- UC2
@@ -12,3 +16,7 @@ flowchart LR
     M --- UC3
     L --- UC4
     M --- UC4
+    M --- UC5
+    L --- UC6
+    L --- UC7
+    M --- UC8

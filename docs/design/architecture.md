@@ -36,6 +36,22 @@ Controllers receive HTTP input and choose a view. Services enforce application d
 
 Passwords are stored as BCrypt hashes. URL rules restrict book/copy administration to the `LIBRARIAN` role. Both roles can search and inspect availability. Demo credentials are only seed data for a local database.
 
-## Design limitations at this checkpoint
+## Design limitations at the Week 5 checkpoint
 
-The application does not yet have member profile entities, loans or reservation state transitions. The copy status select is intentionally simple for Week 5; later loan/return services must become the authority for `ON_LOAN` and `RESERVED` transitions instead of allowing arbitrary staff edits.
+At the Week 5 checkpoint, member profile entities, loans and reservation
+transitions were not implemented. Week 6 adds the loan/return authority for
+`ON_LOAN`; reservation transitions remain Week 7 work. The copy edit form no
+longer allows those workflow-owned statuses to be set manually.
+
+## Week 6 circulation additions
+
+`CirculationService` handles request submission, eligibility checks, approval,
+rejection, issue and return. A successful approval updates the request, loan
+and physical-copy status in one transaction. Repository locks serialize
+approval of the same request, borrowing checks for the same member and the
+selection of a physical copy. The return workflow locks its loan before
+recording the return and fine. The librarian copy-edit flow cannot clear an
+active loan or mark an unloaned copy `ON_LOAN`/`RESERVED`; those state changes
+belong to the circulation/reservation workflows.
+
+Reservations and fine settlement are still outside the Week 6 implementation.

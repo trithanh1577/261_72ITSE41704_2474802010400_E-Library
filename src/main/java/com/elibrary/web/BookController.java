@@ -1,6 +1,7 @@
 package com.elibrary.web;
 
 import com.elibrary.domain.Book;
+import com.elibrary.web.form.BorrowRequestForm;
 import com.elibrary.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,7 @@ public class BookController {
         model.addAttribute("book", book);
         model.addAttribute("copies", bookService.getCopies(id));
         model.addAttribute("availableCount", bookService.countAvailableCopies(id));
+        model.addAttribute("requestForm", new BorrowRequestForm());
         return "books/detail";
     }
 
