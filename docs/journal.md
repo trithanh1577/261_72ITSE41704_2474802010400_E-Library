@@ -36,3 +36,13 @@ This journal records the work rhythm and decisions required by the self-study ma
 - Added sample data for a repeatable local demonstration.
 - The initial workspace did not have Java or Maven. After installing JDK 17 and a local Maven binary, `mvn test` compiled 20 source files and passed 3 automated tests with 0 failures and 0 errors. Browser checks and MySQL restart persistence still require a configured local database.
 - Known limitations: no borrowing/return flow, reservation queue, fines, member CRUD, pagination, audit log or final concurrency policy yet.
+
+## Week 6 — circulation iteration (in progress)
+
+- Added the first borrowing request flow: a member submits a request and a librarian can approve or reject it.
+- Approval checks that the member is enabled, has fewer than five active loans, has no overdue active loan, and that a physical copy is still available.
+- Approval creates a 14-day loan and marks one copy `ON_LOAN`; returning a loan records the return date, calculates VND 5,000 per late day, and makes the copy available again.
+- Added page-level separation for librarian requests/loans and the signed-in member's own request/loan history.
+- Added automated service tests for approval/rejection, eligibility, inventory availability, note validation, return fine calculation and copy-state protection. After recompiling all sources, `mvn test` passed 17 tests, with 0 failures and 0 errors; `git diff --check` also passed.
+- Difficult point: automated tests use mocks for circulation rules, so they do not replace a real MySQL/browser walkthrough. MySQL persistence, role-based page access and restart checks remain to be confirmed locally.
+- Current limitation: reservation queue allocation and expiry remain Week 7 work; fine payment/waiver and member account management remain later scope.

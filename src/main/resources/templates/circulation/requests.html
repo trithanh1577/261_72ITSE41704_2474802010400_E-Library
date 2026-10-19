@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Borrowing requests')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content">
+    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Borrowing requests</h1><p class="muted">Review pending requests. Approval creates a loan if a copy and member are eligible.</p></div></div>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert danger" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:if="${!#lists.isEmpty(requests)}">
+        <table class="data-table"><thead><tr><th>Requested</th><th>Member</th><th>Book</th><th>Member note</th><th>Status</th><th>Decision</th></tr></thead>
+            <tbody><tr th:each="request : ${requests}">
+                <td th:text="${#temporals.format(request.requestedAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                <td th:text="${request.member.displayName}">Member</td>
+                <td><a th:href="@{/books/{id}(id=${request.book.id})}" th:text="${request.book.title}">Book</a></td>
+                <td th:text="${request.memberNote == null ? '—' : request.memberNote}">Note</td>
+                <td th:text="${request.status}">PENDING</td>
+                <td>
+                    <div class="button-row" th:if="${request.status.name() == 'PENDING'}">
+                        <form th:action="@{/circulation/requests/{id}/approve(id=${request.id})}" method="post"><button class="button primary" type="submit">Approve</button></form>
+                        <form th:action="@{/circulation/requests/{id}/reject(id=${request.id})}" method="post"><input type="hidden" name="reason" value="Not approved by librarian."><button class="button danger-outline" type="submit">Reject</button></form>
+                    </div>
+                    <span class="muted" th:if="${request.status.name() != 'PENDING'}" th:text="${request.decisionNote}"></span>
+                </td>
+            </tr></tbody>
+        </table>
+    </section>
+    <div class="empty-state" th:if="${#lists.isEmpty(requests)}"><h2>No requests yet</h2><p class="muted">Member requests will appear here.</p></div>
+</main>
+</body>
+</html>

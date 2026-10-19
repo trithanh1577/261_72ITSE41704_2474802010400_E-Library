@@ -23,4 +23,30 @@ erDiagram
       varchar status
       bigint version
     }
+    BORROW_REQUESTS {
+      bigint id PK
+      bigint member_id FK
+      bigint book_id FK
+      datetime requested_at
+      varchar status
+      varchar member_note
+      varchar decision_note
+      bigint version
+    }
+    LOANS {
+      bigint id PK
+      bigint member_id FK
+      bigint copy_id FK
+      bigint request_id UK
+      datetime issued_at
+      date due_date
+      datetime returned_at
+      decimal fine_amount
+      bigint version
+    }
     BOOKS ||--o{ BOOK_COPIES : contains
+    USER_ACCOUNTS ||--o{ BORROW_REQUESTS : submits
+    BOOKS ||--o{ BORROW_REQUESTS : requested_title
+    USER_ACCOUNTS ||--o{ LOANS : borrows
+    BOOK_COPIES ||--o{ LOANS : loan_history
+    BORROW_REQUESTS ||--o| LOANS : may_create

@@ -13,7 +13,7 @@
     <artifactId>elibrary</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>E-Library and Resource Circulation System</name>
-    <description>Week 5 checkpoint for the Application Programming Project</description>
+    <description>Week 6 checkpoint for the Application Programming Project</description>
     <properties><java.version>17</java.version></properties>
     <dependencies>
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>

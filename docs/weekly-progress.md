@@ -1,7 +1,7 @@
 # Weekly progress log
 
-This note records how the project was developed from the first week to the
-Week 5 checkpoint. It is a progress record, not a claim that the whole
+This note records how the project was developed from the first week through
+the Week 6 checkpoint. It is a progress record, not a claim that the whole
 ten-week proposal has already been completed.
 
 ## Week 1 - Start with the topic and scope
@@ -103,3 +103,18 @@ remain in the later work plan.
 
 The detailed handoff is in [`week5-status.md`](week5-status.md), and the
 working notes are in [`journal.md`](journal.md).
+
+## Week 6 - Circulation iteration (manual checks pending)
+
+- Started member borrowing requests and librarian review.
+- Added loan issue/return flow with the proposal's 14-day loan period, five
+  active-loan limit, overdue eligibility check and VND 5,000 daily fine rule.
+- Added service tests and a separate Week 6 test-case table. After final review,
+  `mvn test` passed 17 tests with no failures or errors; manual MySQL/browser
+  cases remain pending. A review found that the book-save POST route needed an
+  explicit Librarian rule; this was corrected in `SecurityConfig`. Manual copy
+  editing was also restricted from setting the not-yet-implemented
+  `RESERVED` state.
+- Added Week 6 use cases and updated the requirement traceability notes.
+- This work is on local branch `feature/week-6-circulation`; it has not been
+  reviewed, committed or pushed yet.

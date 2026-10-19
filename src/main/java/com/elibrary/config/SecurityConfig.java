@@ -25,8 +25,11 @@ public class SecurityConfig {
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/login", "/error").permitAll()
-                        .requestMatchers("/books/new", "/books/*/edit", "/books/*/deactivate",
+                        .requestMatchers("/books/new", "/books/save", "/books/*/edit", "/books/*/deactivate",
                                 "/books/*/copies/**", "/copies/**").hasRole("LIBRARIAN")
+                        .requestMatchers("/circulation/requests", "/circulation/requests/*/approve",
+                                "/circulation/requests/*/reject", "/circulation/loans",
+                                "/circulation/loans/*/return").hasRole("LIBRARIAN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

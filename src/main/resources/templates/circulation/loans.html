@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Loans')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content">
+    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Loans</h1><p class="muted">Active loans and returned-copy history.</p></div></div>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert danger" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:if="${!#lists.isEmpty(loans)}">
+        <table class="data-table"><thead><tr><th>Member</th><th>Book / copy</th><th>Issued</th><th>Due</th><th>Returned</th><th>Fine</th><th>Action</th></tr></thead>
+            <tbody><tr th:each="loan : ${loans}">
+                <td th:text="${loan.member.displayName}">Member</td>
+                <td><span th:text="${loan.copy.book.title}">Book</span><br><span class="muted small-text" th:text="${loan.copy.copyCode}">Copy</span></td>
+                <td th:text="${#temporals.format(loan.issuedAt, 'yyyy-MM-dd')}">Issued</td>
+                <td th:text="${loan.dueDate}">Due</td>
+                <td th:text="${loan.returnedAt == null ? 'Active' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td>
+                <td th:text="|VND ${loan.fineAmount}|">VND 0</td>
+                <td><form th:if="${loan.active}" th:action="@{/circulation/loans/{id}/return(id=${loan.id})}" method="post"><button class="button secondary" type="submit">Record return</button></form></td>
+            </tr></tbody>
+        </table>
+    </section>
+    <div class="empty-state" th:if="${#lists.isEmpty(loans)}"><h2>No loans yet</h2><p class="muted">Approved requests will create loan records.</p></div>
+</main>
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.elibrary.domain.BookCopy;
 import com.elibrary.domain.CopyStatus;
 import com.elibrary.repository.BookCopyRepository;
 import com.elibrary.repository.BookRepository;
+import com.elibrary.repository.LoanRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +14,13 @@ public class BookCopyService {
 
     private final BookCopyRepository copyRepository;
     private final BookRepository bookRepository;
+    private final LoanRepository loanRepository;
 
-    public BookCopyService(BookCopyRepository copyRepository, BookRepository bookRepository) {
+    public BookCopyService(BookCopyRepository copyRepository, BookRepository bookRepository,
+                           LoanRepository loanRepository) {
         this.copyRepository = copyRepository;
         this.bookRepository = bookRepository;
+        this.loanRepository = loanRepository;
     }
 
     @Transactional
@@ -45,6 +49,13 @@ public class BookCopyService {
                 throw new IllegalArgumentException("Copy code already belongs to another copy.");
             }
         });
+        boolean hasActiveLoan = loanRepository.existsByCopyIdAndReturnedAtIsNull(id);
+        if (hasActiveLoan && status != CopyStatus.ON_LOAN) {
+            throw new IllegalArgumentException("A copy with an active loan can only be returned through the loan workflow.");
+        }
+        if (!hasActiveLoan && (status == CopyStatus.ON_LOAN || status == CopyStatus.RESERVED)) {
+            throw new IllegalArgumentException("Loan and reservation workflows control ON_LOAN and RESERVED copy statuses.");
+        }
         copy.setCopyCode(normalisedCode);
         copy.setStatus(status);
         return copyRepository.save(copy);

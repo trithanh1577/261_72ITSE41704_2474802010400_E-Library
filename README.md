@@ -2,9 +2,9 @@
 
 Application Programming Project, course 72ITSE41704, class group 261_72ITSE41704_01.
 
-## Week 5 checkpoint
+## Week 6 checkpoint (manual checks pending)
 
-This repository contains the first end-to-end slice required by the Week 5 plan:
+The Week 5 catalogue slice is implemented. Week 6 circulation work is in progress:
 
 - sign in/sign out with separate Librarian and Member permissions;
 - catalogue search by title, author, ISBN or category;
@@ -13,10 +13,11 @@ This repository contains the first end-to-end slice required by the Week 5 plan:
 - MySQL persistence through Spring Data JPA;
 - validation on the main book and copy forms;
 - seed data for a local demonstration;
-- Week 5 unit and repository tests;
+- 17 automated unit and repository tests (all passing in the local verification run);
+- member borrowing requests, librarian approval/rejection, 14-day loans, return recording and overdue fine calculation (Week 6 implementation; manual database/browser checks pending);
 - architecture, requirements, use cases, ERD, wireframe notes and work journal in `docs/`.
 
-Borrowing requests, loans, returns, reservations, fines and member management are intentionally not implemented in this checkpoint. They remain in the later slices of the proposal.
+Reservation queues, fine settlement, member account management and circulation reports remain later work. Week 6 changes need review and test execution before they are considered complete.
 
 ## Technology stack
 
@@ -78,6 +79,12 @@ Run tests with:
 mvn test
 ```
 
+Week 6 use cases, test cases and current verification results are listed in
+[`docs/use-cases-week6.md`](docs/use-cases-week6.md),
+[`docs/test-cases-week6.md`](docs/test-cases-week6.md) and
+[`docs/week6-status.md`](docs/week6-status.md). Automated tests passed; manual
+MySQL and browser checks remain pending.
+
 ## Architecture
 
 ```text
@@ -108,12 +115,12 @@ src/main/java/com/elibrary/       Java application
 src/main/resources/templates/     Thymeleaf pages
 src/main/resources/static/        CSS
 src/test/java/com/elibrary/       Unit and repository tests
-docs/                             Week 1–5 evidence and design artefacts
+docs/                             Week 1–6 evidence and design artefacts
 ```
 
 The development order is recorded in [`docs/weekly-progress.md`](docs/weekly-progress.md),
-from the Week 1 scope decision through the Week 5 checkpoint.
+from the Week 1 scope decision through the Week 6 circulation iteration.
 
-## Honest Week 5 limitations
+## Current limitations
 
-This is a checkpoint, not the final system. The current version has no loan transaction, reservation queue, fine calculation, member CRUD, pagination, audit trail or optimistic locking workflow. The copy `@Version` field is present as a first persistence safeguard, but conflict handling still needs a later iteration. These limitations and the initial setup problem caused by a missing local JDK/Maven are recorded in [`docs/week5-status.md`](docs/week5-status.md) and [`docs/journal.md`](docs/journal.md).
+This is a checkpoint, not the final system. Automated tests for the current Week 6 implementation passed, but manual MySQL/browser checks and restart-persistence checks remain outstanding. Email-based sign-in, overdue indicators, reservation processing, fine settlement, member CRUD, pagination, audit trail and browser compatibility evidence are not complete. See [`docs/week6-status.md`](docs/week6-status.md) and [`docs/journal.md`](docs/journal.md).

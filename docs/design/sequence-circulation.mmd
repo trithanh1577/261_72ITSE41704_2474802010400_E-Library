@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor Member
+    actor Librarian
+    participant Page as Web page
+    participant Controller as CirculationController
+    participant Service as CirculationService
+    participant Repositories as JPA repositories
+    participant DB as MySQL
+    Member->>Page: Submit borrowing request
+    Page->>Controller: POST /books/{id}/requests
+    Controller->>Service: submitRequest(username, bookId, note)
+    Service->>Repositories: Verify member, active book and duplicate request
+    Repositories->>DB: Read request data
+    DB-->>Repositories: Existing records
+    Service->>Repositories: Save PENDING request
+    Repositories->>DB: Insert request
+    DB-->>Page: Redirect with success message
+    Librarian->>Page: Approve pending request
+    Page->>Controller: POST /circulation/requests/{id}/approve
+    Controller->>Service: approveRequest(requestId)
+    Service->>Repositories: Lock member and available copy; check eligibility
+    Repositories->>DB: Read and lock records
+    Service->>Repositories: Save loan, set copy ON_LOAN, approve request
+    Repositories->>DB: Commit transaction
+    Librarian->>Page: Record returned copy
+    Page->>Controller: POST /circulation/loans/{id}/return
+    Controller->>Service: returnLoan(loanId)
+    Service->>Repositories: Lock loan, record return/fine, set copy AVAILABLE
+    Repositories->>DB: Commit transaction
