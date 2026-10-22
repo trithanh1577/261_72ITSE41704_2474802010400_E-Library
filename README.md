@@ -11,6 +11,7 @@ The Week 5 catalogue slice is implemented. Week 6 circulation work is in progres
 - librarian book create, edit and deactivate actions;
 - physical book-copy create, status update and availability display;
 - MySQL persistence through Spring Data JPA;
+- PostgreSQL support for a hosted deployment using Supabase;
 - validation on the main book and copy forms;
 - seed data for a local demonstration;
 - 17 automated unit and repository tests (all passing in the local verification run);
@@ -29,7 +30,7 @@ Reservation queues, fine settlement, member account management and circulation r
 | Spring Security | Login and role-based authorisation |
 | Thymeleaf | Server-side HTML rendering |
 | Bean Validation | Server-side form validation |
-| MySQL | Persistent relational database |
+| MySQL / PostgreSQL | Local and hosted relational database options |
 | Maven | Build and dependency management |
 | JUnit 5 + Mockito | Automated tests |
 | Bootstrap-compatible CSS | Consistent web interface |
@@ -47,6 +48,11 @@ Create the database once:
 ```sql
 CREATE DATABASE elibrary CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
+
+If MySQL is not available for local viewing, the file-based H2 fallback can
+be started with `mvn spring-boot:run "-Dspring-boot.run.profiles=h2"`. It keeps
+records in the ignored `data/elibrary.mv.db` file across application restarts.
+This fallback does not replace the standard MySQL setup used for course checks.
 
 Set connection variables if the local MySQL account is not the default:
 
@@ -72,6 +78,16 @@ The first run creates demo accounts and sample catalogue data when the tables ar
 | `member` | `member123` | Library Member |
 
 These accounts are for local development only and must be changed or removed before a real deployment.
+
+## Public deployment (Render + Supabase)
+
+The repository includes a Dockerfile and Render Blueprint for a public web
+service. The hosted app can use Supabase PostgreSQL; the catalogue is readable
+without signing in, while management and circulation actions remain protected.
+The cloud deployment has not been created yet and needs the team's Render and
+Supabase accounts. Follow [`docs/deployment-render-supabase.md`](docs/deployment-render-supabase.md)
+to connect the repository and enter credentials securely in Render. Do not put
+database passwords or the bootstrap administrator password in Git or chat.
 
 Run tests with:
 

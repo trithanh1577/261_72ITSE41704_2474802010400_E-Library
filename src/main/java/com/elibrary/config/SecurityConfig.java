@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/circulation/requests", "/circulation/requests/*/approve",
                                 "/circulation/requests/*/reject", "/circulation/loans",
                                 "/circulation/loans/*/return").hasRole("LIBRARIAN")
+                        .requestMatchers("/books", "/books/*").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

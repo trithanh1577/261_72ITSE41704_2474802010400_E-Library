@@ -4,7 +4,7 @@
 
 - JDK 17 or later
 - Maven 3.9 or later
-- MySQL 8 or later
+- MySQL 8 or later for the standard course setup
 
 Check the Java and Maven installations:
 
@@ -53,8 +53,24 @@ Set-Location Z:\
 mvn test
 ```
 
-Open `http://localhost:8080`. The app uses the configured MySQL database; it
-does not host a public website.
+Open `http://localhost:8080`. The local app uses the configured MySQL database.
+For a public hosted version, follow
+[`docs/deployment-render-supabase.md`](docs/deployment-render-supabase.md).
+
+### Run locally without MySQL
+
+For a local demo when MySQL is unavailable, use the included file-based H2
+profile instead of the in-memory H2 database used by tests:
+
+```powershell
+mvn spring-boot:run "-Dspring-boot.run.profiles=h2"
+```
+
+This stores application data in `data/elibrary.mv.db` in the repository. Stop
+the app normally and start it again with the same profile to check persistence.
+The `data/` folder is ignored by Git, so its local database is not pushed. Use
+MySQL for the standard course setup and record which database was used during
+manual checks; the H2 profile is only a local fallback.
 
 ## 4. Week 5/6 smoke checks
 

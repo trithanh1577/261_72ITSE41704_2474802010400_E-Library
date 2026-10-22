@@ -22,7 +22,9 @@
   0 errors and 0 skipped tests. This includes the Week 6 circulation service
   tests and copy-status protection test.
 - `git diff --check` completed without whitespace errors.
-- MySQL, browser, role smoke and restart-persistence checks are pending.
+- Local H2 file-profile restart check passed: a newly created book remained
+  searchable after a graceful stop and restart. MySQL persistence, full browser
+  walkthrough and role smoke checks remain pending.
 - On this Windows workspace, test compilation needs a temporary `subst` drive
   because the repository path contains Vietnamese characters; the workaround
   is included in `RUN_GUIDE.md`.

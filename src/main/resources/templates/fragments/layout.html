@@ -16,6 +16,7 @@
             <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/requests}">Requests</a>
             <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/loans}">Loans</a>
             <a th:if="${#authorization.expression('hasRole(''MEMBER'')')}" th:href="@{/circulation/mine}">My activity</a>
+            <a th:unless="${#authorization.expression('isAuthenticated()')}" th:href="@{/login}">Sign in</a>
             <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
                 <button class="link-button" type="submit">Sign out</button>
             </form>
