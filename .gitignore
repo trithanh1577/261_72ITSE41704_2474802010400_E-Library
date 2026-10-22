@@ -24,6 +24,7 @@ application-secrets.yml
 
 # Database dumps
 database-dumps/
+/data/
 
 # Operating system files
 .DS_Store

@@ -8,14 +8,14 @@ The full course test log grows with each iteration. These cases cover the Week 5
 | TC-02 | FR-01 | Seed data exists | Sign in as `member` with `member123` | Catalogue opens with Member badge | Pending local run | Pending |
 | TC-03 | UC-01 | Authenticated user | Select Sign out | Session ends and login page appears | Pending local run | Pending |
 | TC-04 | FR-02 | Sign in as `member` | Open `/books/new` directly | Access is denied; no form is shown | Pending local run | Pending |
-| TC-05 | FR-03 | Librarian signed in | Submit a valid new book | New book appears in catalogue and database | Pending local run | Pending |
+| TC-05 | FR-03 | Librarian signed in | Submit a valid new book | New book appears in catalogue and database | Created `Restart check 20261019` with the local H2 profile; detail page opened successfully. | Passed (H2 fallback) |
 | TC-06 | FR-03 | Librarian signed in | Submit blank title | Save is rejected with a title message | Pending local run | Pending |
 | TC-07 | FR-04 | Existing book | Add unique copy code `TEST-001` | Copy is shown as AVAILABLE | Pending local run | Pending |
 | TC-08 | FR-04 | Existing book | Add duplicate copy code | Save is rejected and no second copy is created | Pending local run | Pending |
 | TC-09 | FR-06 | Seed catalogue exists | Search `Martin` | Clean Code is returned | Pending local run | Pending |
 | TC-10 | FR-06 | Seed catalogue exists | Search a non-existing term | Empty state is shown without a crash | Pending local run | Pending |
 | TC-11 | FR-07 | Book has copies | Open Clean Code details | Copy rows and available count are correct | Pending local run | Pending |
-| TC-12 | NFR-06 | A book was created | Restart application | Created book remains available | Pending local run | Pending |
+| TC-12 | NFR-06 | A book was created | Restart application | Created book remains available | Gracefully stopped and restarted the app with the same H2 file profile; `Restart check 20261019` remained searchable. MySQL restart check is still pending. | Passed (H2 fallback) |
 | TC-13 | NFR-02 | Database is accessible | Inspect the user password column | Password is not stored in clear text | Pending local run | Pending |
 | TC-14 | NFR-04 | Librarian signed in | Submit over-length title | Server-side validation rejects it | Pending local run | Pending |
 | TC-15 | NFR-08 | Source available | Inspect package responsibilities | Controllers do not contain repository queries | Pending local run | Pending |

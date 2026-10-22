@@ -24,12 +24,13 @@ public class SecurityConfig {
         http
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/login", "/error").permitAll()
+                        .requestMatchers("/css/**", "/login", "/register", "/error").permitAll()
                         .requestMatchers("/books/new", "/books/save", "/books/*/edit", "/books/*/deactivate",
                                 "/books/*/copies/**", "/copies/**").hasRole("LIBRARIAN")
                         .requestMatchers("/circulation/requests", "/circulation/requests/*/approve",
                                 "/circulation/requests/*/reject", "/circulation/loans",
                                 "/circulation/loans/*/return").hasRole("LIBRARIAN")
+                        .requestMatchers("/books", "/books/*").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
