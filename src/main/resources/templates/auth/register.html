@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Create member account')}"></head>
+<body class="login-page">
+<main class="login-card">
+    <div class="brand-mark">Create a member account</div>
+    <p class="muted">Registration creates a library member account.</p>
+    <form th:action="@{/register}" th:object="${registrationForm}" method="post" class="stack-form">
+        <label for="displayName">Display name</label>
+        <input id="displayName" th:field="*{displayName}" maxlength="120" autocomplete="name" required>
+        <p class="field-error" th:errors="*{displayName}"></p>
+
+        <label for="username">Username</label>
+        <input id="username" th:field="*{username}" minlength="3" maxlength="80" autocomplete="username" required>
+        <p class="field-error" th:errors="*{username}"></p>
+
+        <label for="password">Password</label>
+        <input id="password" th:field="*{password}" type="password" minlength="12" maxlength="72" autocomplete="new-password" required>
+        <p class="field-error" th:errors="*{password}"></p>
+
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" th:field="*{confirmPassword}" type="password" autocomplete="new-password" required>
+        <p class="field-error" th:errors="*{confirmPassword}"></p>
+
+        <button class="button primary full" type="submit">Create account</button>
+    </form>
+    <p class="hint"><a th:href="@{/login}">Back to sign in</a></p>
+</main>
+</body>
+</html>

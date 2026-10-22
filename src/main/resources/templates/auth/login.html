@@ -6,6 +6,7 @@
     <div class="brand-mark">E-Library</div>
     <p class="muted">Book catalogue and circulation foundation</p>
     <div class="alert success" th:if="${param.logout}">You have signed out.</div>
+    <div class="alert success" th:if="${param.registered}">Account created. You can sign in now.</div>
     <div class="alert danger" th:if="${param.error}">Invalid username or password.</div>
     <form th:action="@{/login}" method="post" class="stack-form">
         <label for="username">Username</label>
@@ -14,7 +15,7 @@
         <input id="password" name="password" type="password" autocomplete="current-password" required>
         <button class="button primary full" type="submit">Sign in</button>
     </form>
-    <p class="hint">Local demo: <code>admin / admin123</code> or <code>member / member123</code></p>
+    <p class="hint">New to E-Library? <a th:href="@{/register}">Create a member account</a></p>
 </main>
 </body>
 </html>
