@@ -39,9 +39,8 @@ Passwords are stored as BCrypt hashes. URL rules restrict book/copy administrati
 ## Design limitations at the Week 5 checkpoint
 
 At the Week 5 checkpoint, member profile entities, loans and reservation
-transitions were not implemented. Week 6 adds the loan/return authority for
-`ON_LOAN`; reservation transitions remain Week 7 work. The copy edit form no
-longer allows those workflow-owned statuses to be set manually.
+transitions were not implemented. The copy edit form no longer allows
+workflow-owned statuses to be set manually.
 
 ## Week 6 circulation additions
 
@@ -54,4 +53,19 @@ recording the return and fine. The librarian copy-edit flow cannot clear an
 active loan or mark an unloaned copy `ON_LOAN`/`RESERVED`; those state changes
 belong to the circulation/reservation workflows.
 
-Reservations and fine settlement are still outside the Week 6 implementation.
+Fine settlement remains outside the current implementation.
+
+## Current reservation and membership additions
+
+`Reservation` records the member, title, optional assigned copy and hold
+deadline. Returning a copy allocates it to the oldest eligible waiting member;
+the member has 48 hours to claim it. Expired holds are released when a
+circulation or reservation request reaches the service. A background scheduler
+is not configured.
+
+`MembershipType` supplies the active-loan limit and loan period. `CirculationService`
+applies those values during approval and reservation fulfillment. It calculates
+fines at VND 5,000 per chargeable day, excludes configured `LIBRARY_HOLIDAYS`
+and caps a loan's fine at VND 100,000. `MemberManagementService` allows
+librarians to edit member display names, membership types and enabled status;
+the service rejects non-member accounts.

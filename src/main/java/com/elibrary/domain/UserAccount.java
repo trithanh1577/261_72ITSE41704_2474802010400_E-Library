@@ -33,6 +33,11 @@ public class UserAccount {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "membership_type", nullable = false, length = 20,
+            columnDefinition = "varchar(20) default 'STANDARD'")
+    private MembershipType membershipType = MembershipType.STANDARD;
+
     @Column(nullable = false)
     private boolean enabled = true;
 
@@ -55,6 +60,8 @@ public class UserAccount {
     public void setDisplayName(String displayName) { this.displayName = displayName; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public MembershipType getMembershipType() { return membershipType; }
+    public void setMembershipType(MembershipType membershipType) { this.membershipType = membershipType; }
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
 }

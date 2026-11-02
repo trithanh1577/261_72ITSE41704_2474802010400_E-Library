@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Members')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content">
+    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Member accounts</h1><p class="muted">Edit member profiles, membership limits and account access.</p></div></div>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert danger" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:if="${!#lists.isEmpty(members)}">
+        <table class="data-table"><thead><tr><th>Username</th><th>Member settings</th></tr></thead>
+            <tbody><tr th:each="member : ${members}">
+                <td th:text="${member.username}">username</td>
+                <td><form class="stack-form" th:action="@{/members/{id}/update(id=${member.id})}" method="post">
+                    <label th:for="|display-${member.id}|">Display name</label>
+                    <input th:id="|display-${member.id}|" name="displayName" th:value="${member.displayName}" maxlength="120" required>
+                    <label th:for="|type-${member.id}|">Membership</label>
+                    <select th:id="|type-${member.id}|" name="membershipType">
+                        <option th:each="type : ${membershipTypes}" th:value="${type}" th:selected="${type == member.membershipType}"
+                                th:text="|${type} — ${type.maximumActiveLoans} active loans, ${type.loanPeriodDays} days|">Standard</option>
+                    </select>
+                    <span class="status" th:text="${member.enabled ? 'ENABLED' : 'DISABLED'}">ENABLED</span>
+                    <label><input style="width:auto" type="checkbox" name="enabled" value="true" th:checked="${member.enabled}"> Account enabled</label>
+                    <button class="button primary" type="submit">Save</button></form></td>
+            </tr></tbody>
+        </table>
+    </section>
+    <div class="empty-state" th:if="${#lists.isEmpty(members)}"><h2>No member accounts</h2><p class="muted">Registered members will appear here.</p></div>
+</main>
+</body>
+</html>

@@ -2,8 +2,9 @@ classDiagram
     class UserAccount {
       Long id
       String username
-      String passwordHash
+      String password
       Role role
+      MembershipType membershipType
       boolean enabled
     }
     class Book {
@@ -34,6 +35,12 @@ classDiagram
       LocalDateTime returnedAt
       BigDecimal fineAmount
     }
+    class Reservation {
+      Long id
+      LocalDateTime reservedAt
+      LocalDateTime readyUntil
+      ReservationStatus status
+    }
     class BookService {
       search(keyword)
       countAvailableCopies(bookId)
@@ -48,6 +55,19 @@ classDiagram
       approveRequest(requestId)
       rejectRequest(requestId, reason)
       returnLoan(loanId)
+      submitReservation(username, bookId)
+      claimReservation(reservationId, username)
+    }
+    class MemberManagementService {
+      listMembers()
+      updateMember(memberId, displayName, membershipType, enabled)
+    }
+    class MembershipType {
+      STANDARD
+      STUDENT
+      PREMIUM
+      maximumActiveLoans
+      loanPeriodDays
     }
     UserAccount ..> Role
     Book "1" o-- "0..*" BookCopy
@@ -56,8 +76,13 @@ classDiagram
     UserAccount "1" --> "0..*" Loan
     BookCopy "1" --> "0..*" Loan
     BorrowRequest "1" --> "0..1" Loan
+    UserAccount "1" --> "0..*" Reservation
+    Book "1" --> "0..*" Reservation
+    BookCopy "0..1" --> "0..*" Reservation
     BookService --> Book
     BookService --> BookCopy
     BookCopyService --> BookCopy
     CirculationService --> BorrowRequest
     CirculationService --> Loan
+    CirculationService --> Reservation
+    MemberManagementService --> UserAccount

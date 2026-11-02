@@ -9,9 +9,9 @@ service/repository test results are recorded separately below.
 |---|---|---|---|---|---|---|
 | TC-16 | Borrow request | Member requests a book | Sign in as `member`, open an active book and submit a note | Request is saved as `PENDING` and appears in My activity | Pending local run | Pending |
 | TC-17 | Duplicate pending request | Prevent repeat requests | Submit a second request for the same book before a decision | Second request is rejected with a clear message | Pending local run | Pending |
-| TC-18 | Loan issue / BR-01 | Approve an eligible request | Librarian approves a pending request when a copy is available | One loan is created, due in 14 calendar days, and copy becomes `ON_LOAN` | Pending local run | Pending |
+| TC-18 | Loan issue / BR-01 | Approve an eligible Standard-member request | Librarian approves a pending request when a copy is available | One loan is created, due in 14 calendar days, and copy becomes `ON_LOAN` | Pending local run | Pending |
 | TC-19 | BR-02 | Reject overdue member | Give the member an overdue active loan, then approve a new request | Approval is rejected and no copy/loan state changes | Pending local run | Pending |
-| TC-20 | BR-03 | Enforce five-loan limit | Give the member five active loans, then approve another request | Approval is rejected and no extra loan is created | Pending local run | Pending |
+| TC-20 | BR-03 | Enforce Standard membership loan limit | Give the Standard member five active loans, then approve another request | Approval is rejected and no extra loan is created | Pending local run | Pending |
 | TC-21 | FR-08 | Handle unavailable copy | Make all copies unavailable, then approve a pending request | Approval is rejected and request remains pending | Pending local run | Pending |
 | TC-22 | FR-10 / FR-11 | Return on due date | Return an active loan on its due date | Return is recorded, fine is zero, and copy becomes `AVAILABLE` | Pending local run | Pending |
 | TC-23 | BR-04 | Calculate late fine | Return a copy three calendar days after its due date | Return is recorded and fine is VND 15,000 | Pending local run | Pending |
@@ -22,7 +22,7 @@ service/repository test results are recorded separately below.
 
 ## Automated service tests added
 
-`mvn test` passed 17 tests (0 failures, 0 errors, 0 skipped). This includes
+`mvn test` passed 19 tests (0 failures, 0 errors, 0 skipped). This includes
 `CirculationServiceTest`, which covers request submission and duplicate
 prevention, note-length validation, successful approval, librarian rejection,
 deactivated-title and overdue-member rejection, the five-loan limit,
@@ -31,6 +31,11 @@ duplicate-return rejection. `BookCopyServiceTest` checks that an active loan
 cannot be cleared and that an unloaned copy cannot be manually marked
 `RESERVED`. These automated tests use service/repository mocks; they do not
 replace the pending end-to-end checks above.
+
+An HTTP smoke check on isolated in-memory H2 verified registration, sign-in,
+catalogue/detail pages and role-based access to member and librarian pages.
+The reservation queue ordering, claiming and expiry transitions are not yet
+covered by automated tests or that smoke check.
 
 ## Review notes
 

@@ -21,10 +21,6 @@ public interface BorrowRequestRepository extends JpaRepository<BorrowRequest, Lo
 
     boolean existsByMemberIdAndBookIdAndStatus(Long memberId, Long bookId, BorrowRequestStatus status);
 
-    @Override
-    @EntityGraph(attributePaths = {"member", "book"})
-    Optional<BorrowRequest> findById(Long id);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"member", "book"})
     @Query("select r from BorrowRequest r where r.id = :id")

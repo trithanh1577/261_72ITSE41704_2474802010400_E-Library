@@ -2,9 +2,10 @@ erDiagram
     USER_ACCOUNTS {
       bigint id PK
       varchar username UK
-      varchar password_hash
+      varchar password
       varchar display_name
       varchar role
+      varchar membership_type
       boolean enabled
     }
     BOOKS {
@@ -44,9 +45,22 @@ erDiagram
       decimal fine_amount
       bigint version
     }
+    RESERVATIONS {
+      bigint id PK
+      bigint member_id FK
+      bigint book_id FK
+      bigint copy_id FK
+      datetime reserved_at
+      datetime ready_until
+      varchar status
+      bigint version
+    }
     BOOKS ||--o{ BOOK_COPIES : contains
     USER_ACCOUNTS ||--o{ BORROW_REQUESTS : submits
     BOOKS ||--o{ BORROW_REQUESTS : requested_title
     USER_ACCOUNTS ||--o{ LOANS : borrows
     BOOK_COPIES ||--o{ LOANS : loan_history
     BORROW_REQUESTS ||--o| LOANS : may_create
+    USER_ACCOUNTS ||--o{ RESERVATIONS : places
+    BOOKS ||--o{ RESERVATIONS : requested_title
+    BOOK_COPIES o|--o{ RESERVATIONS : temporarily_held

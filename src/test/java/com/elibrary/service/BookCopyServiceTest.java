@@ -44,7 +44,7 @@ class BookCopyServiceTest {
     }
 
     @Test
-    void librarianCannotSetReservedStatusBeforeReservationWorkflowExists() {
+    void librarianCannotSetReservedStatusManually() {
         BookCopy copy = new BookCopy("CC-001", new Book("Clean Code", "9780132350884",
                 "Robert C. Martin", "Software", ""));
         ReflectionTestUtils.setField(copy, "id", 10L);

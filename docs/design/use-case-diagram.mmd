@@ -9,6 +9,9 @@ flowchart LR
     UC6((Review request and issue loan))
     UC7((Record return and fine))
     UC8((View own requests and loans))
+    UC9((Reserve unavailable title))
+    UC10((Claim or cancel reservation))
+    UC11((Manage member accounts))
     L --- UC1
     M --- UC1
     L --- UC2
@@ -20,3 +23,6 @@ flowchart LR
     L --- UC6
     L --- UC7
     M --- UC8
+    M --- UC9
+    M --- UC10
+    L --- UC11
