@@ -133,4 +133,12 @@ mvn test
 
 Lần kiểm tra local gần nhất: **19 test đạt, 0 lỗi**. Kiểm tra thủ công với MySQL, luồng trình duyệt đầy đủ và khả năng giữ dữ liệu trên Supabase sau khi restart cần được ghi nhận riêng trong [`docs/week6-status.md`](docs/week6-status.md).
 
-Các phần như đăng nhập bằng email, đặt lại mật khẩu, hàng chờ đặt trước, thanh toán/miễn phạt, báo cáo và quản trị tài khoản thành viên chưa nằm trong mốc hiện tại.
+Các phần chưa có trong phiên bản hiện tại gồm thanh toán/miễn phạt và báo cáo hoạt động thư viện.
+
+## Bổ sung quy trình mượn và quản lý thành viên
+
+- Thành viên có thể xếp hàng đặt trước khi không còn bản sao khả dụng. Bản sao được trả sẽ dành cho người đầu hàng trong 48 giờ; hết hạn thì chuyển cho người tiếp theo.
+- Hạng Standard: tối đa 5 sách trong 14 ngày; Student: tối đa 3 sách trong 21 ngày; Premium: tối đa 8 sách trong 21 ngày.
+- Phạt trễ là 5.000 VND mỗi ngày tính phí, tối đa 100.000 VND cho một lượt mượn. Có thể khai báo ngày nghỉ bằng biến `LIBRARY_HOLIDAYS`, danh sách ngày `yyyy-MM-dd` cách nhau bằng dấu phẩy.
+- Thủ thư có thể sửa tên hiển thị, hạng thành viên và trạng thái tài khoản tại trang **Members**. Quyền Librarian không thể được cấp từ trang này.
+- Hạn đặt trước được cập nhật khi có người mở trang circulation/reservations hoặc thực hiện thao tác; ứng dụng hiện chưa chạy tác vụ nền để tự cập nhật trong lúc không có truy cập.

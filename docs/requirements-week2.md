@@ -11,18 +11,18 @@ features.
 | FR-02 | The system shall restrict administrative functions to users with the Librarian role. | Must | Course Guidelines §4.1; proposal | TC-04 |
 | FR-03 | The system shall allow a librarian to create, view, update and deactivate book-title records. | Must | Topic 6; proposal | TC-05, TC-06 |
 | FR-04 | The system shall allow a librarian to add and update physical copies belonging to a book title. | Must | Topic 6 key entity Copy; proposal | TC-07, TC-08 |
-| FR-05 | The system shall allow a librarian to create, update, view and deactivate member accounts. | Must (later slice) | Topic 6 member-management module | Future member tests |
+| FR-05 | The system shall allow a librarian to view and update member profiles, membership type and account status; public registration creates Member accounts only. | Must | Topic 6 member-management module | Manual librarian/member role checks pending |
 | FR-06 | The system shall allow users to search by title, author, ISBN or category. | Must | Topic 6 catalogue with search | TC-09, TC-10 |
 | FR-07 | The system shall show the current number of available copies for each title. | Must | Topic 6 catalogue with search | TC-11 |
 | FR-08 | The system shall allow a librarian to issue an available copy to an eligible member. | Must (Week 6) | Topic 6 loan/return module | TC-18; manual result pending |
 | FR-09 | The system shall reject a loan when the member or copy violates a circulation rule. | Must (Week 6) | Topic 6 non-CRUD rules | TC-19 to TC-21; manual result pending |
 | FR-10 | The system shall allow a librarian to record the return of an active loan. | Must (Week 6) | Topic 6 loan/return module | TC-22, TC-24; manual result pending |
 | FR-11 | The system shall calculate overdue fines using late days and the configured daily rate. | Must (Week 6) | Topic 6 fine calculation | TC-22, TC-23; manual result pending |
-| FR-12 | The system shall allow a member to reserve a title when no copy is currently available. | Must (Week 7) | Topic 6 reservation queue | Future reservation tests |
-| FR-13 | The system shall prevent duplicate active reservations for the same member and title. | Must (Week 7) | Topic 6 reservation queue | Future reservation tests |
-| FR-14 | The system shall allow a member to cancel an active reservation that has not been fulfilled. | Must (Week 7) | Topic 6 reservation queue | Future reservation tests |
-| FR-15 | The system shall allocate a returned copy to the earliest eligible active reservation. | Must (Week 7) | Topic 6 reservation queue | Future reservation tests |
-| FR-16 | The system shall allow a member to view active loans, due dates, overdue status, reservations and fines. | Must (Week 7) | Topic 6 circulation reports | Week 6 page shows own requests/loans and recorded fines; overdue indicators and reservations remain later work. Manual check pending. |
+| FR-12 | The system shall allow a member to reserve a title when no copy is currently available. | Must | Topic 6 reservation queue | Manual reservation flow pending |
+| FR-13 | The system shall prevent duplicate active reservations for the same member and title. | Must | Topic 6 reservation queue | Manual duplicate check pending |
+| FR-14 | The system shall allow a member to cancel an active reservation that has not been fulfilled. | Must | Topic 6 reservation queue | Manual cancellation check pending |
+| FR-15 | The system shall allocate a returned copy to the earliest eligible active reservation. | Must | Topic 6 reservation queue | Manual FIFO and 48-hour expiry checks pending |
+| FR-16 | The system shall allow a member to view active loans, due dates, overdue status, reservations and fines. | Must | Topic 6 circulation reports | Member page shows loans, overdue state, reservations and fines; manual check pending. |
 | FR-17 | The system shall allow a librarian to view current and historical loans by member, book or status. | Must (later slice) | Topic 6 circulation reports | Future librarian tests |
 | FR-18 | The system shall allow a librarian to mark a recorded fine as paid or waived with a note. | Should (later slice) | Topic 6 fine management | Future fine tests |
 

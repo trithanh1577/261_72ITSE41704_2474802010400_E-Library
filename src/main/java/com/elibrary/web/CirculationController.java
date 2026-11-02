@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import java.time.LocalDate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,6 +41,48 @@ public class CirculationController {
             redirectAttributes.addFlashAttribute("error", exception.getMessage());
         }
         return "redirect:/books/" + bookId;
+    }
+
+    @PostMapping("/books/{bookId}/reservations")
+    public String reserve(@PathVariable Long bookId, Authentication authentication,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            circulationService.submitReservation(authentication.getName(), bookId);
+            redirectAttributes.addFlashAttribute("success", "Reservation added to the queue.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/books/" + bookId;
+    }
+
+    @GetMapping("/circulation/reservations")
+    public String reservations(Model model) {
+        model.addAttribute("reservations", circulationService.listReservations());
+        return "circulation/reservations";
+    }
+
+    @PostMapping("/reservations/{id}/claim")
+    public String claimReservation(@PathVariable Long id, Authentication authentication,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            circulationService.claimReservation(id, authentication.getName());
+            redirectAttributes.addFlashAttribute("success", "Reserved copy checked out successfully.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/circulation/mine";
+    }
+
+    @PostMapping("/reservations/{id}/cancel")
+    public String cancelReservation(@PathVariable Long id, Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            circulationService.cancelReservation(id, authentication.getName());
+            redirectAttributes.addFlashAttribute("success", "Reservation cancelled.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/circulation/mine";
     }
 
     @GetMapping("/circulation/requests")
@@ -83,6 +126,8 @@ public class CirculationController {
     public String mine(Authentication authentication, Model model) {
         model.addAttribute("requests", circulationService.listRequestsForMember(authentication.getName()));
         model.addAttribute("loans", circulationService.listLoansForMember(authentication.getName()));
+        model.addAttribute("reservations", circulationService.listReservationsForMember(authentication.getName()));
+        model.addAttribute("today", LocalDate.now());
         model.addAttribute("librarianView", false);
         return "circulation/mine";
     }

@@ -5,14 +5,27 @@
 <nav th:replace="~{fragments/layout :: nav}"></nav>
 <main class="container page-content">
     <div class="page-heading"><div><p class="eyebrow">MEMBER</p><h1>My activity</h1><p class="muted">Your requests, loans and return fines.</p></div></div>
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert danger" th:if="${error}" th:text="${error}"></div>
+    <section class="panel"><h2>Reservations</h2>
+        <table class="data-table" th:if="${!#lists.isEmpty(reservations)}"><thead><tr><th>Book</th><th>Placed</th><th>Status</th><th>Collect by</th><th>Action</th></tr></thead><tbody>
+            <tr th:each="reservation : ${reservations}"><td><a th:href="@{/books/{id}(id=${reservation.book.id})}" th:text="${reservation.book.title}">Book</a></td>
+                <td th:text="${#temporals.format(reservation.reservedAt, 'yyyy-MM-dd HH:mm')}">Placed</td><td th:text="${reservation.status}">Status</td>
+                <td th:text="${reservation.readyUntil == null ? '—' : #temporals.format(reservation.readyUntil, 'yyyy-MM-dd HH:mm')}">Collect by</td>
+                <td><div class="button-row" th:if="${reservation.status.name() == 'READY' or reservation.status.name() == 'WAITING'}">
+                    <form th:if="${reservation.status.name() == 'READY'}" th:action="@{/reservations/{id}/claim(id=${reservation.id})}" method="post"><button class="button primary" type="submit">Borrow reserved copy</button></form>
+                    <form th:action="@{/reservations/{id}/cancel(id=${reservation.id})}" method="post"><button class="button danger-outline" type="submit">Cancel</button></form>
+                </div></td></tr>
+        </tbody></table><p class="muted" th:if="${#lists.isEmpty(reservations)}">You have no reservations.</p>
+    </section>
     <section class="panel"><h2>Borrowing requests</h2>
         <table class="data-table" th:if="${!#lists.isEmpty(requests)}"><thead><tr><th>Book</th><th>Requested</th><th>Status</th><th>Decision</th></tr></thead><tbody>
             <tr th:each="request : ${requests}"><td th:text="${request.book.title}">Book</td><td th:text="${#temporals.format(request.requestedAt, 'yyyy-MM-dd')}">Date</td><td th:text="${request.status}">Status</td><td th:text="${request.decisionNote == null ? '—' : request.decisionNote}">Decision</td></tr>
         </tbody></table><p class="muted" th:if="${#lists.isEmpty(requests)}">You have not submitted a request.</p>
     </section>
     <section class="panel"><h2>Loans</h2>
-        <table class="data-table" th:if="${!#lists.isEmpty(loans)}"><thead><tr><th>Book</th><th>Copy</th><th>Due</th><th>Returned</th><th>Fine</th></tr></thead><tbody>
-            <tr th:each="loan : ${loans}"><td th:text="${loan.copy.book.title}">Book</td><td th:text="${loan.copy.copyCode}">Copy</td><td th:text="${loan.dueDate}">Due</td><td th:text="${loan.returnedAt == null ? 'Active' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td><td th:text="|VND ${loan.fineAmount}|">VND 0</td></tr>
+        <table class="data-table" th:if="${!#lists.isEmpty(loans)}"><thead><tr><th>Book</th><th>Copy</th><th>Due</th><th>Status</th><th>Returned</th><th>Fine</th></tr></thead><tbody>
+            <tr th:each="loan : ${loans}"><td th:text="${loan.copy.book.title}">Book</td><td th:text="${loan.copy.copyCode}">Copy</td><td th:text="${loan.dueDate}">Due</td><td th:text="${loan.active ? (loan.dueDate.isBefore(today) ? 'OVERDUE' : 'ACTIVE') : 'RETURNED'}">Status</td><td th:text="${loan.returnedAt == null ? 'Active' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td><td th:text="|VND ${loan.fineAmount}|">VND 0</td></tr>
         </tbody></table><p class="muted" th:if="${#lists.isEmpty(loans)}">You have no loan records.</p>
     </section>
 </main>

@@ -15,7 +15,7 @@
         <p class="field-error" th:errors="*{username}"></p>
 
         <label for="password">Password</label>
-        <input id="password" th:field="*{password}" type="password" minlength="12" maxlength="72" autocomplete="new-password" required>
+        <input id="password" th:field="*{password}" type="password" maxlength="72" autocomplete="new-password" required>
         <p class="field-error" th:errors="*{password}"></p>
 
         <label for="confirmPassword">Confirm password</label>

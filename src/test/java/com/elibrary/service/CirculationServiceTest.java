@@ -181,7 +181,7 @@ class CirculationServiceTest {
 
         assertThatThrownBy(() -> circulationService.approveRequest(31L))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("limit of five");
+                .hasMessageContaining("limit for their membership type");
         verify(copyRepository, never()).findFirstByBookIdAndStatusOrderByCopyCodeAsc(21L, CopyStatus.AVAILABLE);
     }
 

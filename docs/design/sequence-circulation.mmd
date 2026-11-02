@@ -5,25 +5,39 @@ sequenceDiagram
     participant Controller as CirculationController
     participant Service as CirculationService
     participant Repositories as JPA repositories
-    participant DB as MySQL
+    participant DB as Relational database
+
     Member->>Page: Submit borrowing request
     Page->>Controller: POST /books/{id}/requests
     Controller->>Service: submitRequest(username, bookId, note)
-    Service->>Repositories: Verify member, active book and duplicate request
+    Service->>Repositories: Verify member, active title and duplicate request
     Repositories->>DB: Read request data
-    DB-->>Repositories: Existing records
     Service->>Repositories: Save PENDING request
     Repositories->>DB: Insert request
-    DB-->>Page: Redirect with success message
-    Librarian->>Page: Approve pending request
+
+    Librarian->>Page: Approve request
     Page->>Controller: POST /circulation/requests/{id}/approve
     Controller->>Service: approveRequest(requestId)
-    Service->>Repositories: Lock member and available copy; check eligibility
+    Service->>Repositories: Lock request/member/copy and check eligibility
     Repositories->>DB: Read and lock records
-    Service->>Repositories: Save loan, set copy ON_LOAN, approve request
+    Service->>Repositories: Save loan and mark request approved
     Repositories->>DB: Commit transaction
-    Librarian->>Page: Record returned copy
+
+    Member->>Page: Reserve unavailable title
+    Page->>Controller: POST /books/{id}/reservations
+    Controller->>Service: submitReservation(username, bookId)
+    Service->>Repositories: Check eligibility and append FIFO reservation
+    Repositories->>DB: Save WAITING reservation
+
+    Librarian->>Page: Record return
     Page->>Controller: POST /circulation/loans/{id}/return
     Controller->>Service: returnLoan(loanId)
-    Service->>Repositories: Lock loan, record return/fine, set copy AVAILABLE
-    Repositories->>DB: Commit transaction
+    Service->>Repositories: Record return and capped fine
+    Service->>Repositories: Assign returned copy to earliest eligible reservation
+    Repositories->>DB: Commit return, fine and reservation updates
+
+    Member->>Page: Claim ready reservation within 48 hours
+    Page->>Controller: POST /reservations/{id}/claim
+    Controller->>Service: claimReservation(reservationId, username)
+    Service->>Repositories: Recheck member limits and create loan
+    Repositories->>DB: Mark reservation fulfilled and copy ON_LOAN

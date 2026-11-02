@@ -83,9 +83,22 @@ manual checks; the H2 profile is only a local fallback.
 5. Repeat with a late return and check the fine. Try to return it a second
    time; the saved return should not change.
 6. Restart the app and confirm the records remain in MySQL.
+7. Register two members, set one to Student and one to Standard under
+   **Members**, and confirm the librarian page cannot be opened as a member.
+8. Make a title unavailable, join its reservation queue as both members, then
+   return a copy. Confirm the earlier reservation becomes ready and can be
+   claimed. Check cancellation and the 48-hour expiry in a disposable local
+   database.
+9. Set `LIBRARY_HOLIDAYS` to a date between the due date and return date and
+   confirm that date is excluded from the fine. Confirm the fine stops at
+   VND 100,000.
 
 Record the observed outcome and date in the Week 5/6 test tables. The manual
 checks are not marked passed until they have been run on the team's setup.
+
+For fine calculation, `LIBRARY_HOLIDAYS` is optional and accepts comma-
+separated dates in `yyyy-MM-dd` format. Membership limits are Standard (5
+active loans, 14 days), Student (3, 21 days), and Premium (8, 21 days).
 
 ## 5. Git handoff for Ngan3112
 

@@ -42,9 +42,8 @@ The `prod` profile does not create the local demo users (`admin/admin123` and
 `member/member123`). On an empty hosted database it creates only the librarian
 whose bootstrap credentials you entered. Remove `BOOTSTRAP_ADMIN_PASSWORD`
 from Render after the first successful start; it is only read when the user
-table is empty. Member self-registration/account management is not implemented
-at this Week 6 checkpoint, so do not advertise member borrowing as available
-until member accounts can be provisioned securely.
+table is empty. Members can register themselves, and librarians can edit member
+profiles, membership type and enabled status from the Members page.
 
 ## 3. Verify the deployment
 
