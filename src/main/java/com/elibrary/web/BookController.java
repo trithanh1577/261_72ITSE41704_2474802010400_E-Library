@@ -28,8 +28,11 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public String list(@RequestParam(required = false) String keyword, Model model) {
-        model.addAttribute("books", bookService.search(keyword));
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(defaultValue = "0") int page, Model model) {
+        var bookPage = bookService.search(keyword, page);
+        model.addAttribute("books", bookPage.getContent());
+        model.addAttribute("bookPage", bookPage);
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         return "books/list";
     }

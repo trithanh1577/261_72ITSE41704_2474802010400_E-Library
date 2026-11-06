@@ -1,28 +1,29 @@
 flowchart LR
     L[Librarian]
     M[Library Member]
-    UC1((Sign in / sign out))
-    UC2((Manage books and copies))
-    UC3((Search books))
-    UC4((Check availability))
-    UC5((Submit borrowing request))
-    UC6((Review request and issue loan))
-    UC7((Record return and fine))
-    UC8((View own requests and loans))
-    UC9((Reserve unavailable title))
-    UC10((Claim or cancel reservation))
-    UC11((Manage member accounts))
+    UC1((UC-01 Register, sign in and sign out))
+    UC2((UC-02 Manage books and copies))
+    UC3((UC-03 Search books and check availability))
+    UC4((UC-04 Submit a borrowing request))
+    UC5((UC-05 Review a request and issue a loan))
+    UC6((UC-06 Record a return))
+    UC7((UC-07 View own requests and loans))
+    UC8((UC-08 Reserve an unavailable title))
+    UC9((UC-09 Manage member accounts and membership))
+    UC10((UC-10 Claim or cancel a reservation))
+    UC11((UC-11 Review circulation history and settle a fine))
+    UC12((UC-12 View title popularity report))
     L --- UC1
     M --- UC1
     L --- UC2
     L --- UC3
     M --- UC3
-    L --- UC4
     M --- UC4
-    M --- UC5
+    L --- UC5
     L --- UC6
-    L --- UC7
+    M --- UC7
     M --- UC8
-    M --- UC9
+    L --- UC9
     M --- UC10
     L --- UC11
+    L --- UC12

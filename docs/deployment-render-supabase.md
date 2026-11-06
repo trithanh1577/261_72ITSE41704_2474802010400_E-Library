@@ -1,9 +1,11 @@
 # Public deployment: Render and Supabase
 
-This project is prepared for a Docker-based Render web service with Supabase
-PostgreSQL as its persistent database. These files prepare the application;
-the service is not public until a team member connects the repository and
-creates it in the Render dashboard.
+The repository contains a Docker-based Render web-service configuration and
+uses Supabase PostgreSQL for hosted persistence. A Render service was created
+earlier, but the deployment screenshot supplied by the team showed a failed
+start because Hibernate could not read JDBC metadata. The current local branch
+has not been pushed or deployed, so the hosted service does not yet verify this
+version. Use the steps below to correct the environment and re-check it.
 
 ## 1. Prepare Supabase
 
@@ -23,15 +25,19 @@ creates it in the Render dashboard.
    repository root containing `render.yaml`.
 3. During Blueprint setup, enter the requested values for the variables marked
    `sync: false`. Do this in Render's dashboard, not in the YAML file.
-4. For `DB_URL`, enter a JDBC URL in this form, replacing the host and database
-   with the values shown under Supabase's **Session pooler**:
+4. For `DB_URL`, enter a JDBC URL, not the raw `postgresql://` connection URI
+   shown by Supabase. For the project values in the supplied screenshot, use:
 
    ```text
-   jdbc:postgresql://<POOLER-HOST>:5432/postgres?sslmode=require
+   jdbc:postgresql://aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require
    ```
 
-5. Set `DB_USERNAME` to the Supabase session-pooler username (usually
-   `postgres.<PROJECT-REF>`), and `DB_PASSWORD` to the database password.
+5. Set `DB_USERNAME` to the session-pooler username shown by Supabase. In the
+   supplied project screenshot it is `postgres.ccltveljoxplbivrenjz`. Set
+   `DB_PASSWORD` to the actual Supabase database password; do not leave
+   `[YOUR-PASSWORD]` in the value. If the password contains URI-reserved
+   characters, enter it only in the separate `DB_PASSWORD` field, not inside
+   `DB_URL`.
    Set `BOOTSTRAP_ADMIN_USERNAME` to the first librarian's username and
    `BOOTSTRAP_ADMIN_PASSWORD` to a unique password with at least 12 characters.
    The display name is optional.
@@ -47,11 +53,17 @@ profiles, membership type and enabled status from the Members page.
 
 ## 3. Verify the deployment
 
-1. Confirm Render reports the service as live and `/login` responds.
-2. Sign in with the bootstrap librarian account, create a book and a copy, and
+1. In Render, verify the service is connected to the intended repository and
+   branch. The screenshot supplied on 22 October showed
+   `feature/week-6-circulation`; select `main` after the reviewed changes have
+   been merged there if main-branch auto-deploy is intended.
+2. Confirm Render reports the service as live and `/login` responds. If startup
+   fails, inspect the first database/driver error in the deploy logs and verify
+   `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and `DB_DRIVER=org.postgresql.Driver`.
+3. Sign in with the bootstrap librarian account, create a book and a copy, and
    confirm they are visible in the catalogue.
-3. Restart or redeploy the Render service, then confirm the same records remain.
-4. Do not mark the cloud persistence check complete until it has been tested
+4. Restart or redeploy the Render service, then confirm the same records remain.
+5. Do not mark the cloud persistence check complete until it has been tested
    against the actual Supabase project.
 
 The Blueprint uses Render's free web-service plan. Free services can spin down
@@ -65,6 +77,9 @@ dashboards before choosing a plan.
   a production database dump.
 - Do not send these secrets in chat. Enter them directly in Render's secret
   environment-variable form.
+- If a production password has been shared or captured in a screenshot, rotate
+  it. Changing `BOOTSTRAP_ADMIN_PASSWORD` alone does not change an existing
+  librarian account's password.
 - Render needs repository access for deployment. Ngan3112 should push the
   prepared branch, and a team member with Render access must connect it.
 

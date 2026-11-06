@@ -4,17 +4,26 @@ import com.elibrary.domain.Book;
 import com.elibrary.domain.BookCopy;
 import com.elibrary.domain.BorrowRequest;
 import com.elibrary.domain.BorrowRequestStatus;
+import com.elibrary.domain.BorrowingEligibility;
 import com.elibrary.domain.CopyStatus;
+import com.elibrary.domain.FineBalance;
+import com.elibrary.domain.FineSettlement;
+import com.elibrary.domain.FineSettlementType;
+import com.elibrary.domain.FinePolicy;
 import com.elibrary.domain.Loan;
+import com.elibrary.domain.LoanTerms;
 import com.elibrary.domain.Reservation;
+import com.elibrary.domain.ReservationQueue;
 import com.elibrary.domain.ReservationStatus;
 import com.elibrary.domain.Role;
 import com.elibrary.domain.MembershipType;
 import com.elibrary.domain.UserAccount;
 import com.elibrary.repository.BookCopyRepository;
+import com.elibrary.repository.FineSettlementRepository;
 import com.elibrary.repository.BookRepository;
 import com.elibrary.repository.BorrowRequestRepository;
 import com.elibrary.repository.LoanRepository;
+import com.elibrary.repository.BookPopularity;
 import com.elibrary.repository.ReservationRepository;
 import com.elibrary.repository.UserAccountRepository;
 import java.math.BigDecimal;
@@ -24,6 +33,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,8 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CirculationService {
 
-    static final BigDecimal FINE_PER_LATE_DAY = new BigDecimal("5000.00");
-    static final BigDecimal MAX_FINE_PER_LOAN = new BigDecimal("100000.00");
     static final int RESERVATION_HOLD_HOURS = 48;
 
     private final BorrowRequestRepository requestRepository;
@@ -42,8 +51,9 @@ public class CirculationService {
     private final BookRepository bookRepository;
     private final BookCopyRepository copyRepository;
     private final ReservationRepository reservationRepository;
+    private final FineSettlementRepository fineSettlementRepository;
     private final Clock clock;
-    private final Set<LocalDate> holidays;
+    private final FinePolicy finePolicy;
 
     @Autowired
     public CirculationService(BorrowRequestRepository requestRepository,
@@ -52,9 +62,11 @@ public class CirculationService {
                               BookRepository bookRepository,
                               BookCopyRepository copyRepository,
                               ReservationRepository reservationRepository,
+                              FineSettlementRepository fineSettlementRepository,
                               @Value("${elibrary.holidays:}") String configuredHolidays) {
         this(requestRepository, loanRepository, userRepository, bookRepository, copyRepository,
-                reservationRepository, Clock.systemDefaultZone(), parseHolidays(configuredHolidays));
+                reservationRepository, fineSettlementRepository, Clock.systemDefaultZone(),
+                parseHolidays(configuredHolidays));
     }
 
     CirculationService(BorrowRequestRepository requestRepository,
@@ -65,14 +77,28 @@ public class CirculationService {
                        ReservationRepository reservationRepository,
                        Clock clock,
                        Set<LocalDate> holidays) {
+        this(requestRepository, loanRepository, userRepository, bookRepository, copyRepository,
+                reservationRepository, null, clock, holidays);
+    }
+
+    CirculationService(BorrowRequestRepository requestRepository,
+                       LoanRepository loanRepository,
+                       UserAccountRepository userRepository,
+                       BookRepository bookRepository,
+                       BookCopyRepository copyRepository,
+                       ReservationRepository reservationRepository,
+                       FineSettlementRepository fineSettlementRepository,
+                       Clock clock,
+                       Set<LocalDate> holidays) {
         this.requestRepository = requestRepository;
         this.loanRepository = loanRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.copyRepository = copyRepository;
         this.reservationRepository = reservationRepository;
+        this.fineSettlementRepository = fineSettlementRepository;
         this.clock = clock;
-        this.holidays = holidays;
+        this.finePolicy = new FinePolicy(holidays);
     }
 
     CirculationService(BorrowRequestRepository requestRepository,
@@ -87,7 +113,7 @@ public class CirculationService {
 
     @Transactional
     public BorrowRequest submitRequest(String username, Long bookId, String note) {
-        UserAccount member = userRepository.findByUsername(username)
+        UserAccount member = userRepository.findByUsernameForUpdate(username)
                 .orElseThrow(() -> new IllegalArgumentException("Member account was not found."));
         if (!member.isEnabled() || member.getRole() != Role.MEMBER) {
             throw new IllegalArgumentException("Only an enabled library member can submit a borrowing request.");
@@ -126,8 +152,9 @@ public class CirculationService {
 
         copy.setStatus(CopyStatus.ON_LOAN);
         LocalDateTime now = LocalDateTime.now(clock);
+        LoanTerms terms = LoanTerms.forMembership(member.getMembershipType());
         Loan loan = loanRepository.save(new Loan(member, copy, request, now,
-                LocalDate.now(clock).plusDays(member.getMembershipType().getLoanPeriodDays())));
+                terms.dueDateFor(LocalDate.now(clock))));
         request.approve();
         return loan;
     }
@@ -155,9 +182,7 @@ public class CirculationService {
         }
         LocalDateTime returnedAt = LocalDateTime.now(clock);
         LocalDate returnDate = returnedAt.toLocalDate();
-        long lateDays = countChargeableLateDays(loan.getDueDate(), returnDate);
-        BigDecimal fine = FINE_PER_LATE_DAY.multiply(BigDecimal.valueOf(lateDays))
-                .min(MAX_FINE_PER_LOAN);
+        BigDecimal fine = finePolicy.calculate(loan.getDueDate(), returnDate);
         loan.markReturned(returnedAt, fine);
         loan.getCopy().setStatus(CopyStatus.AVAILABLE);
         dispatchForBook(loan.getCopy().getBook().getId());
@@ -167,7 +192,7 @@ public class CirculationService {
     @Transactional
     public Reservation submitReservation(String username, Long bookId) {
         refreshReservationQueues();
-        UserAccount member = userRepository.findByUsername(username)
+        UserAccount member = userRepository.findByUsernameForUpdate(username)
                 .orElseThrow(() -> new IllegalArgumentException("Member account was not found."));
         validateEligibility(member);
         Book book = bookRepository.findById(bookId)
@@ -207,8 +232,9 @@ public class CirculationService {
         }
         copy.setStatus(CopyStatus.ON_LOAN);
         LocalDateTime now = LocalDateTime.now(clock);
+        LoanTerms terms = LoanTerms.forMembership(member.getMembershipType());
         Loan loan = loanRepository.save(new Loan(member, copy, null, now,
-                LocalDate.now(clock).plusDays(member.getMembershipType().getLoanPeriodDays())));
+                terms.dueDateFor(LocalDate.now(clock))));
         reservation.fulfill();
         return loan;
     }
@@ -233,27 +259,28 @@ public class CirculationService {
         dispatchForBook(bookId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Reservation> listReservations() {
-        refreshReservationQueues();
         return reservationRepository.findAllByOrderByReservedAtAsc();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Reservation> listReservationsForMember(String username) {
-        refreshReservationQueues();
         return reservationRepository.findByMemberUsernameOrderByReservedAtDesc(username);
     }
 
     @Transactional
-    public long waitingReservationCount(Long bookId) {
+    public void processExpiredReservations() {
         refreshReservationQueues();
+    }
+
+    @Transactional(readOnly = true)
+    public long waitingReservationCount(Long bookId) {
         return reservationRepository.countByBookIdAndStatus(bookId, ReservationStatus.WAITING);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ReservationStatus activeReservationStatus(String username, Long bookId) {
-        refreshReservationQueues();
         return reservationRepository.findByMemberUsernameOrderByReservedAtDesc(username).stream()
                 .filter(r -> r.getBook().getId().equals(bookId))
                 .map(Reservation::getStatus)
@@ -277,21 +304,65 @@ public class CirculationService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Loan> searchLoans(String search, String requestedStatus, int requestedPage) {
+        String query = search == null ? "" : search.trim();
+        String status = requestedStatus == null ? "ALL" : requestedStatus.trim().toUpperCase();
+        if (!Set.of("ALL", "ACTIVE", "RETURNED", "OVERDUE").contains(status)) {
+            status = "ALL";
+        }
+        return loanRepository.searchForReport(query, status, LocalDate.now(clock),
+                PageRequest.of(Math.max(0, requestedPage), 50));
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookPopularity> mostBorrowedTitles() {
+        return loanRepository.findMostBorrowedTitles(PageRequest.of(0, 5));
+    }
+
+    @Transactional
+    public FineSettlement settleFine(Long loanId, FineSettlementType type, String note, String username) {
+        if (fineSettlementRepository == null) {
+            throw new IllegalStateException("Fine settlement storage is not configured.");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("Choose whether the fine was paid or waived.");
+        }
+        String safeNote = note == null ? "" : note.trim();
+        if (safeNote.isBlank() || safeNote.length() > 500) {
+            throw new IllegalArgumentException("A note is required and must be at most 500 characters.");
+        }
+        Loan loan = loanRepository.findLockedById(loanId)
+                .orElseThrow(() -> new IllegalArgumentException("Loan was not found."));
+        FineBalance balance = new FineBalance(loan.getFineAmount(),
+                fineSettlementRepository.sumAmountByLoanId(loanId));
+        FineSettlement settlement = new FineSettlement(loan, type, balance.amountToSettle(), safeNote,
+                username, LocalDateTime.now(clock));
+        fineSettlementRepository.save(settlement);
+        loan.addFineSettlement(settlement);
+        return settlement;
+    }
+
+    @Transactional(readOnly = true)
     public List<Loan> listLoansForMember(String username) {
         return loanRepository.findByMemberUsernameOrderByIssuedAtDesc(username);
     }
 
     private void validateEligibility(UserAccount member) {
-        if (!member.isEnabled() || member.getRole() != Role.MEMBER) {
-            throw new IllegalArgumentException("This account cannot borrow books.");
+        boolean overdue = loanRepository.existsByMemberIdAndReturnedAtIsNullAndDueDateBefore(
+                member.getId(), LocalDate.now(clock));
+        long activeLoans = loanRepository.countByMemberIdAndReturnedAtIsNull(member.getId());
+        BorrowingEligibility eligibility = BorrowingEligibility.evaluate(member, overdue, activeLoans);
+        if (!eligibility.permitted()) {
+            throw new IllegalArgumentException(eligibility.reason());
         }
-        if (loanRepository.existsByMemberIdAndReturnedAtIsNullAndDueDateBefore(member.getId(), LocalDate.now(clock))) {
-            throw new IllegalArgumentException("Member has an overdue loan and cannot borrow another book.");
-        }
-        int maximumLoans = member.getMembershipType().getMaximumActiveLoans();
-        if (loanRepository.countByMemberIdAndReturnedAtIsNull(member.getId()) >= maximumLoans) {
-            throw new IllegalArgumentException("Member has reached the active-loan limit for their membership type ("
-                    + maximumLoans + ").");
+    }
+
+    private boolean eligibleForReservation(UserAccount member) {
+        try {
+            validateEligibility(member);
+            return true;
+        } catch (IllegalArgumentException exception) {
+            return false;
         }
     }
 
@@ -313,32 +384,12 @@ public class CirculationService {
 
     private void dispatchForBook(Long bookId) {
         if (reservationRepository == null) return;
-        LocalDateTime readyUntil = LocalDateTime.now(clock).plusHours(RESERVATION_HOLD_HOURS);
         List<Reservation> waiting = reservationRepository.findWaitingForUpdate(bookId, ReservationStatus.WAITING);
-        for (Reservation reservation : waiting) {
-            try {
-                validateEligibility(reservation.getMember());
-            } catch (IllegalArgumentException exception) {
-                reservation.skip();
-                continue;
-            }
-            var availableCopy = copyRepository.findFirstByBookIdAndStatusOrderByCopyCodeAsc(bookId, CopyStatus.AVAILABLE);
-            if (availableCopy.isEmpty()) {
-                break;
-            }
-            BookCopy copy = availableCopy.get();
-            copy.setStatus(CopyStatus.RESERVED);
-            reservation.markReady(copy, readyUntil);
-        }
-    }
-
-    private long countChargeableLateDays(LocalDate dueDate, LocalDate returnDate) {
-        if (!returnDate.isAfter(dueDate)) return 0;
-        long chargeable = 0;
-        for (LocalDate date = dueDate.plusDays(1); !date.isAfter(returnDate); date = date.plusDays(1)) {
-            if (!holidays.contains(date)) chargeable++;
-        }
-        return chargeable;
+        LocalDateTime readyUntil = LocalDateTime.now(clock).plusHours(RESERVATION_HOLD_HOURS);
+        new ReservationQueue(waiting).dispatch(
+                () -> copyRepository.findFirstByBookIdAndStatusOrderByCopyCodeAsc(bookId, CopyStatus.AVAILABLE),
+                this::eligibleForReservation,
+                readyUntil);
     }
 
     private static Set<LocalDate> parseHolidays(String configuredDates) {

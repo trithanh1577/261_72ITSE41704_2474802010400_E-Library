@@ -41,3 +41,13 @@ sequenceDiagram
     Controller->>Service: claimReservation(reservationId, username)
     Service->>Repositories: Recheck member limits and create loan
     Repositories->>DB: Mark reservation fulfilled and copy ON_LOAN
+
+    Librarian->>Page: Open circulation report
+    Page->>Controller: GET /circulation/loans
+    Controller->>Service: mostBorrowedTitles()
+    Service->>Repositories: Find top five titles by loan count
+    Repositories->>DB: Group loans by title and order by count
+    DB-->>Repositories: Ranked title, author and count rows
+    Repositories-->>Service: At most five popularity summaries
+    Service-->>Controller: Popular titles
+    Controller-->>Page: Render report with popularity summary

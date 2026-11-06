@@ -9,10 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "loans")
@@ -45,6 +48,9 @@ public class Loan {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal fineAmount = BigDecimal.ZERO;
 
+    @OneToMany(mappedBy = "loan")
+    private List<FineSettlement> fineSettlements = new ArrayList<>();
+
     @Version
     private Long version;
 
@@ -69,6 +75,22 @@ public class Loan {
     public LocalDateTime getReturnedAt() { return returnedAt; }
     public BigDecimal getFineAmount() { return fineAmount; }
     public Long getVersion() { return version; }
+    public List<FineSettlement> getFineSettlements() { return List.copyOf(fineSettlements); }
+
+    public BigDecimal getSettledFineAmount() {
+        return fineSettlements.stream().map(FineSettlement::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getOutstandingFineAmount() {
+        return new FineBalance(fineAmount, getSettledFineAmount()).outstandingAmount();
+    }
+
+    public boolean hasOutstandingFine() { return getOutstandingFineAmount().signum() > 0; }
+
+    public void addFineSettlement(FineSettlement settlement) {
+        fineSettlements.add(settlement);
+    }
 
     public boolean isActive() { return returnedAt == null; }
 

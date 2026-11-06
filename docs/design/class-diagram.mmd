@@ -2,7 +2,10 @@ classDiagram
     class UserAccount {
       Long id
       String username
+      String usernameKey
+      String email
       String password
+      String displayName
       Role role
       MembershipType membershipType
       boolean enabled
@@ -13,6 +16,7 @@ classDiagram
       String isbn
       String author
       String category
+      String description
       boolean active
     }
     class BookCopy {
@@ -27,6 +31,7 @@ classDiagram
       BorrowRequestStatus status
       String memberNote
       String decisionNote
+      Long version
     }
     class Loan {
       Long id
@@ -34,12 +39,46 @@ classDiagram
       LocalDate dueDate
       LocalDateTime returnedAt
       BigDecimal fineAmount
+      Long version
+    }
+    class FineSettlement {
+      Long id
+      FineSettlementType type
+      BigDecimal amount
+      String note
+      String processedBy
+      LocalDateTime recordedAt
+    }
+    class FinePolicy {
+      calculate(dueDate, returnedOn)
+    }
+    class FineBalance {
+      outstandingAmount()
+      amountToSettle()
+    }
+    class BorrowingEligibility {
+      evaluate(member, overdue, activeLoans)
+    }
+    class LoanTerms {
+      maximumActiveLoans
+      loanPeriodDays
+      dueDateFor(issuedOn)
+    }
+    class ReservationQueue {
+      dispatch(availableCopy, memberIsEligible, readyUntil)
+    }
+    class BookPopularity {
+      <<repository projection>>
+      String title
+      String author
+      long loanCount
     }
     class Reservation {
       Long id
       LocalDateTime reservedAt
       LocalDateTime readyUntil
       ReservationStatus status
+      Long version
     }
     class BookService {
       search(keyword)
@@ -57,25 +96,70 @@ classDiagram
       returnLoan(loanId)
       submitReservation(username, bookId)
       claimReservation(reservationId, username)
+      cancelReservation(reservationId, username)
+      settleFine(loanId, type, note, username)
+      searchLoans(search, status, page)
+    }
+    class ReservationExpiryScheduler {
+      processExpiredReservations()
     }
     class MemberManagementService {
       listMembers()
       updateMember(memberId, displayName, membershipType, enabled)
     }
     class MembershipType {
+      <<enumeration>>
       STANDARD
       STUDENT
       PREMIUM
       maximumActiveLoans
       loanPeriodDays
     }
+    class Role {
+      <<enumeration>>
+      LIBRARIAN
+      MEMBER
+    }
+    class CopyStatus {
+      <<enumeration>>
+      AVAILABLE
+      ON_LOAN
+      RESERVED
+      MAINTENANCE
+    }
+    class BorrowRequestStatus {
+      <<enumeration>>
+      PENDING
+      APPROVED
+      REJECTED
+    }
+    class ReservationStatus {
+      <<enumeration>>
+      WAITING
+      READY
+      FULFILLED
+      CANCELLED
+      EXPIRED
+      SKIPPED
+    }
+    class FineSettlementType {
+      <<enumeration>>
+      PAID
+      WAIVED
+    }
     UserAccount ..> Role
+    UserAccount ..> MembershipType
+    BookCopy ..> CopyStatus
+    BorrowRequest ..> BorrowRequestStatus
+    Reservation ..> ReservationStatus
+    FineSettlement ..> FineSettlementType
     Book "1" o-- "0..*" BookCopy
     UserAccount "1" --> "0..*" BorrowRequest
     Book "1" --> "0..*" BorrowRequest
     UserAccount "1" --> "0..*" Loan
     BookCopy "1" --> "0..*" Loan
     BorrowRequest "1" --> "0..1" Loan
+    Loan "1" --> "0..*" FineSettlement
     UserAccount "1" --> "0..*" Reservation
     Book "1" --> "0..*" Reservation
     BookCopy "0..1" --> "0..*" Reservation
@@ -85,4 +169,16 @@ classDiagram
     CirculationService --> BorrowRequest
     CirculationService --> Loan
     CirculationService --> Reservation
+    CirculationService --> FineSettlement
+    CirculationService --> FinePolicy
+    CirculationService --> FineBalance
+    CirculationService --> BorrowingEligibility
+    CirculationService --> LoanTerms
+    CirculationService --> ReservationQueue
+    CirculationService --> BookPopularity
+    FineBalance --> FineSettlement
+    BorrowingEligibility --> LoanTerms
+    LoanTerms ..> MembershipType
+    ReservationQueue --> Reservation
+    ReservationQueue --> BookCopy
     MemberManagementService --> UserAccount

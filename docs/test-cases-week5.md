@@ -1,24 +1,24 @@
 # Week 5 test-case plan and results
 
-The full course test log grows with each iteration. These cases cover the Week 5 catalogue slice. Week 6 circulation cases are in [`test-cases-week6.md`](test-cases-week6.md). The `Actual result` column must be updated after running the application on the team's configured machine.
+The full course test log grows with each iteration. These cases cover the Week 5 catalogue slice. Week 6 circulation cases are in [`test-cases-week6.md`](test-cases-week6.md). `Actual result` records the strongest evidence currently available. MockMvc/H2 and source-review results are identified explicitly; they do not count as manual browser checks against MySQL or the hosted database.
 
 | ID | Requirement | Precondition | Input / steps | Expected result | Actual result | Status |
 |---|---|---|---|---|---|---|
-| TC-01 | FR-01 | Seed data exists | Sign in as `admin` with `admin123` | Catalogue opens with Librarian badge | Pending local run | Pending |
-| TC-02 | FR-01 | Seed data exists | Sign in as `member` with `member123` | Catalogue opens with Member badge | Pending local run | Pending |
-| TC-03 | UC-01 | Authenticated user | Select Sign out | Session ends and login page appears | Pending local run | Pending |
-| TC-04 | FR-02 | Sign in as `member` | Open `/books/new` directly | Access is denied; no form is shown | Pending local run | Pending |
-| TC-05 | FR-03 | Librarian signed in | Submit a valid new book | New book appears in catalogue and database | Created `Restart check 20261019` with the local H2 profile; detail page opened successfully. | Passed (H2 fallback) |
-| TC-06 | FR-03 | Librarian signed in | Submit blank title | Save is rejected with a title message | Pending local run | Pending |
-| TC-07 | FR-04 | Existing book | Add unique copy code `TEST-001` | Copy is shown as AVAILABLE | Pending local run | Pending |
-| TC-08 | FR-04 | Existing book | Add duplicate copy code | Save is rejected and no second copy is created | Pending local run | Pending |
-| TC-09 | FR-06 | Seed catalogue exists | Search `Martin` | Clean Code is returned | Pending local run | Pending |
-| TC-10 | FR-06 | Seed catalogue exists | Search a non-existing term | Empty state is shown without a crash | Pending local run | Pending |
-| TC-11 | FR-07 | Book has copies | Open Clean Code details | Copy rows and available count are correct | Pending local run | Pending |
-| TC-12 | NFR-06 | A book was created | Restart application | Created book remains available | Gracefully stopped and restarted the app with the same H2 file profile; `Restart check 20261019` remained searchable. MySQL restart check is still pending. | Passed (H2 fallback) |
-| TC-13 | NFR-02 | Database is accessible | Inspect the user password column | Password is not stored in clear text | Pending local run | Pending |
-| TC-14 | NFR-04 | Librarian signed in | Submit over-length title | Server-side validation rejects it | Pending local run | Pending |
-| TC-15 | NFR-08 | Source available | Inspect package responsibilities | Controllers do not contain repository queries | Pending local run | Pending |
+| TC-01 | FR-01 | Seed data exists | Sign in as `admin` with `admin123` | Catalogue opens with Librarian badge | Librarian sign-in succeeded in authenticated MockMvc workflows; badge appearance was not asserted. Manual browser check pending. | Partial (automated) |
+| TC-02 | FR-01 | Seed data exists | Sign in as `member` with `member123` | Catalogue opens with Member badge | Member sign-in and protected-page behavior passed in MockMvc; badge appearance was not asserted. Manual browser check pending. | Partial (automated) |
+| TC-03 | FR-02 | Authenticated user | Select Sign out | Session ends and login page appears | Passed through MockMvc/H2: logout redirected to `/login?logout`; a subsequent protected-page request redirected to sign-in. Manual browser check pending. | Partial (automated) |
+| TC-04 | FR-03 | Sign in as `member` | Open `/books/new` directly | Access is denied; no form is shown | Passed through MockMvc with the real Spring Security filters; browser check pending. | Partial (automated) |
+| TC-05 | FR-04 | Librarian signed in | Submit a valid new book | New book appears in catalogue and database | Created `Restart check 20261019` with the local H2 profile; detail page opened successfully. The create/search/detail path also passed in MockMvc/H2. | Passed (local H2; browser/MySQL pending) |
+| TC-06 | FR-04 | Librarian signed in | Submit blank title | Save is rejected with a title message | Passed through MockMvc/H2: `Title is required` was rendered and no row was saved. | Passed (automated H2) |
+| TC-07 | FR-05 | Existing book | Add unique copy code `TEST-001` | Copy is shown as AVAILABLE | Passed in the authenticated MockMvc/H2 create-title-and-copy flow; browser check pending. | Partial (automated) |
+| TC-08 | FR-05 | Existing book | Add duplicate copy code | Save is rejected and no second copy is created | Passed through MockMvc/H2: duplicate-code message rendered and copy count remained one. | Passed (automated H2) |
+| TC-09 | FR-07 | Seed catalogue exists | Search `Martin` | Clean Code is returned | Title/author/ISBN/category search passed in repository tests; authenticated title search passed in MockMvc/H2. The exact seed-term browser check remains pending. | Partial (automated) |
+| TC-10 | FR-07 | Seed catalogue exists | Search a non-existing term | Empty state is shown without a crash | Blank-search behavior is covered by service tests; exact no-match empty-state rendering remains pending. | Partial (automated) |
+| TC-11 | FR-08 | Book has copies | Open Clean Code details | Copy rows and available count are correct | Passed through MockMvc/H2: detail page showed the created copy and available count of one. | Partial (automated) |
+| TC-12 | NFR-06 | A book was created | Restart application | Created book remains available | On 6 November, stopped and restarted the latest packaged JAR against the same isolated H2 file under `.tools/smoke-db`; `/login` and `/books` returned HTTP 200 and the seeded title remained visible after restart. MySQL/Supabase restart checks are pending. | Passed (H2 fallback) |
+| TC-13 | NFR-02 | Database is accessible | Inspect the user password column | Password is not stored in clear text | Passed in `AuthFlowIntegrationTest`: stored password has a BCrypt prefix, differs from the submitted password and verifies through the encoder. | Passed (automated H2) |
+| TC-14 | NFR-04 | Librarian signed in | Submit over-length title | Server-side validation rejects it | Passed through MockMvc/H2: a 181-character title returned the field validation message and was not saved. | Passed (automated H2) |
+| TC-15 | NFR-08 | Source available | Inspect package responsibilities | Controllers do not contain repository queries | Source review confirmed controllers delegate to services and do not inject repositories; see [`design/architecture.md`](design/architecture.md). | Passed (source review) |
 
 ## Unit tests included
 
@@ -34,4 +34,4 @@ Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-The 15 functional/manual cases above remain pending because they require a running application, browser and configured MySQL database. They must be filled with actual observations rather than copied from the expected column.
+The remaining browser/MySQL checks are still pending and must be filled with observations from the team's configured environment. Automated results above must not be presented as browser or production-database acceptance.

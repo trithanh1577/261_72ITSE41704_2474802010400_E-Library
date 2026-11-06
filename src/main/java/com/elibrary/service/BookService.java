@@ -6,6 +6,9 @@ import com.elibrary.domain.CopyStatus;
 import com.elibrary.repository.BookCopyRepository;
 import com.elibrary.repository.BookRepository;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +24,19 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<Book> search(String keyword) {
+    public Page<Book> search(String keyword, int requestedPage) {
+        int page = Math.max(0, requestedPage);
+        Pageable pageable = PageRequest.of(page, 24);
         if (keyword == null || keyword.isBlank()) {
-            return bookRepository.findAllByActiveTrueOrderByTitleAsc();
+            return bookRepository.findAllByActiveTrueOrderByTitleAsc(pageable);
         }
-        return bookRepository.searchActive(keyword.trim());
+        return bookRepository.searchActive(keyword.trim(), pageable);
     }
 
     @Transactional(readOnly = true)
     public Book getRequired(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Book was not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Book was not found."));
     }
 
     @Transactional(readOnly = true)

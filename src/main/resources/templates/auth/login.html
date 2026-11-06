@@ -7,9 +7,9 @@
     <p class="muted">Book catalogue and circulation foundation</p>
     <div class="alert success" th:if="${param.logout}">You have signed out.</div>
     <div class="alert success" th:if="${param.registered}">Account created. You can sign in now.</div>
-    <div class="alert danger" th:if="${param.error}">Invalid username or password.</div>
+    <div class="alert danger" th:if="${param.error}">Invalid username/email or password.</div>
     <form th:action="@{/login}" method="post" class="stack-form">
-        <label for="username">Username</label>
+        <label for="username">Username or email</label>
         <input id="username" name="username" type="text" autocomplete="username" required autofocus>
         <label for="password">Password</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required>

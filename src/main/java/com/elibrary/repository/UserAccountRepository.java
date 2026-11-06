@@ -12,7 +12,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
     Optional<UserAccount> findByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from UserAccount u where u.username = :username")
+    Optional<UserAccount> findByUsernameForUpdate(@Param("username") String username);
+
+    Optional<UserAccount> findByUsernameKey(String usernameKey);
+    Optional<UserAccount> findByEmailIgnoreCase(String email);
     boolean existsByUsername(String username);
+    boolean existsByUsernameKey(String usernameKey);
+    boolean existsByEmailIgnoreCase(String email);
 
     List<UserAccount> findAllByRoleOrderByDisplayNameAsc(Role role);
 

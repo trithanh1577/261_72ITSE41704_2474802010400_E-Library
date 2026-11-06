@@ -29,7 +29,8 @@ public class SecurityConfig {
                                 "/books/*/copies/**", "/copies/**").hasRole("LIBRARIAN")
                         .requestMatchers("/circulation/requests", "/circulation/requests/*/approve",
                                 "/circulation/requests/*/reject", "/circulation/loans",
-                                "/circulation/loans/*/return", "/circulation/reservations",
+                                "/circulation/loans/*/return", "/circulation/loans/*/fine-settlements",
+                                "/circulation/reservations",
                                 "/members", "/members/*/update").hasRole("LIBRARIAN")
                         .requestMatchers("/books/*/reservations", "/reservations/*/claim",
                                 "/reservations/*/cancel").hasRole("MEMBER")

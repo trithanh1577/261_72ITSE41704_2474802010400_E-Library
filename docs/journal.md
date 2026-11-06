@@ -37,7 +37,7 @@ This journal records the work rhythm and decisions required by the self-study ma
 - The initial workspace did not have Java or Maven. After installing JDK 17 and a local Maven binary, `mvn test` compiled 20 source files and passed 3 automated tests with 0 failures and 0 errors. Browser checks and MySQL restart persistence still require a configured local database.
 - Known limitations: no borrowing/return flow, reservation queue, fines, member CRUD, pagination, audit log or final concurrency policy yet.
 
-## Week 6 — circulation iteration (in progress)
+## Week 6 — circulation iteration
 
 - Added the first borrowing request flow: a member submits a request and a librarian can approve or reject it.
 - Approval checks that the member is enabled, has fewer than five active loans, has no overdue active loan, and that a physical copy is still available.
@@ -45,4 +45,28 @@ This journal records the work rhythm and decisions required by the self-study ma
 - Added page-level separation for librarian requests/loans and the signed-in member's own request/loan history.
 - Added automated service tests for approval/rejection, eligibility, inventory availability, note validation, return fine calculation and copy-state protection. After recompiling all sources, `mvn test` passed 17 tests, with 0 failures and 0 errors; `git diff --check` also passed.
 - Difficult point: automated tests use mocks for circulation rules, so they do not replace a real MySQL/browser walkthrough. MySQL persistence, role-based page access and restart checks remain to be confirmed locally.
-- Current limitation: reservation queue allocation and expiry remain Week 7 work; fine payment/waiver and member account management remain later scope.
+- At this checkpoint, reservation queue allocation and expiry, fine payment/waiver and member account management remained later work; these were picked up in the Week 7 iteration below.
+
+## Week 7 — account access and circulation completion
+
+- Added member email to registration and sign-in while preserving exact-case username lookup. Existing accounts get a derived username key at startup.
+- Added a scheduled reservation-expiry check, librarian loan history filters, and audited payment/waiver records for outstanding fines.
+- Added focused and H2 integration tests for registration/sign-in lookup, late-fee policy, FIFO dispatch, expiry dispatch, fine balance, report queries and catalogue pagination. The full Maven suite passed 34 tests with 0 failures or errors on 5 November 2026.
+- Updated the use-case, class and ER diagrams and added Week 7 acceptance cases.
+- Remaining work is manual validation with MySQL and the hosted Render/Supabase setup, browser acceptance and Week 9–10 release checks. The final report remains a separate deliverable.
+
+## Week 8 — reliability and reporting
+
+- Added the circulation popularity report and updated the requirements traceability, diagrams and test-case records.
+- Added structured error handling, stronger role and input checks, and integration coverage for the main librarian/member journeys.
+- The clean-source Maven package on 5 November 2026 compiled 50 main and 19 test Java files; 68 tests passed with no failures, errors or skips. The H2 search benchmark measured p95 at 52 ms for 100 warmed searches over 10,000 titles. A packaged-JAR smoke check returned HTTP 200 for `/login` and `/books`; H2 file data also remained after restarting the JAR.
+- On 6 November, three regression tests were added for case-sensitive username lookup-key generation and migration; the full offline Maven test run passed 71 tests with no failures, errors or skips.
+- The same day, the newly packaged JAR returned HTTP 200 for `/login` and `/books` against an isolated H2 file database; a seeded title remained visible after a stop and restart. The temporary app was stopped after the check.
+- The final 6 November source-clean package compiled 50 application and 20 test files, passed all 71 tests and measured H2 search p95 at 54 ms.
+- After review, reservation expiry was removed from read-only page queries so GET requests do not change reservation state. A regression test was added. The 6 November offline package then passed 72 tests and measured H2 search p95 at 49 ms; MySQL/browser/cloud acceptance is still pending.
+- A second review found that editing a reserved copy could release it without updating its reservation. The form and service now keep that transition in the reservation workflow, and an MVC regression test covers code correction and a rejected release attempt. The full offline package passed 75 tests; H2 search p95 measured 58 ms.
+- A final transaction review found that concurrent duplicate borrowing requests from one member could pass the check together. Submission now locks the member row before checking for a pending request; a two-thread H2 integration test confirms only one request is created. At that review checkpoint, the offline package passed all 76 tests and the H2 search p95 was 42 ms. Concurrent MySQL/browser verification remains part of the pending acceptance run.
+- After packaging that change, the JAR started twice on the same isolated H2 file. Both runs returned HTTP 200 for `/login` and `/books`, and `Clean Code` remained visible after restart. The smoke-test processes were stopped after each run.
+- Added an optional local Docker Compose setup for the app and MySQL 8, using a named database volume and a clearly local-only `.env.example`. `docker compose config` accepts the YAML and variable interpolation; the Docker daemon is unavailable here, so image build and Compose runtime remain unverified.
+- A final registration review found that BCrypt limits input by UTF-8 bytes rather than characters. Registration now rejects values longer than 72 bytes with a visible validation message while still accepting short non-empty passwords. Automated checks cover a 75-byte input; the 6 November clean offline package passed 77 tests and the H2 search p95 was 11 ms. MySQL/browser acceptance remains pending.
+- These checks used H2 and MockMvc. Docker/MySQL execution, Chrome/Edge walkthroughs, Supabase persistence after a hosted restart, teammate review and the Week 9–10 release steps remain unverified. The course report is separate from these technical artifacts.
