@@ -2,6 +2,8 @@ erDiagram
     USER_ACCOUNTS {
       bigint id PK
       varchar username UK
+      varchar username_key UK
+      varchar email UK
       varchar password
       varchar display_name
       varchar role
@@ -45,6 +47,15 @@ erDiagram
       decimal fine_amount
       bigint version
     }
+    FINE_SETTLEMENTS {
+      bigint id PK
+      bigint loan_id FK
+      varchar type
+      decimal amount
+      varchar note
+      varchar processed_by
+      datetime recorded_at
+    }
     RESERVATIONS {
       bigint id PK
       bigint member_id FK
@@ -61,6 +72,7 @@ erDiagram
     USER_ACCOUNTS ||--o{ LOANS : borrows
     BOOK_COPIES ||--o{ LOANS : loan_history
     BORROW_REQUESTS ||--o| LOANS : may_create
+    LOANS ||--o{ FINE_SETTLEMENTS : settles
     USER_ACCOUNTS ||--o{ RESERVATIONS : places
     BOOKS ||--o{ RESERVATIONS : requested_title
     BOOK_COPIES o|--o{ RESERVATIONS : temporarily_held

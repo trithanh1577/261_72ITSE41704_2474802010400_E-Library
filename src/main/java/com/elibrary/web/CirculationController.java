@@ -1,6 +1,7 @@
 package com.elibrary.web;
 
 import com.elibrary.service.CirculationService;
+import com.elibrary.domain.FineSettlementType;
 import com.elibrary.web.form.BorrowRequestForm;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -116,10 +117,35 @@ public class CirculationController {
     }
 
     @GetMapping("/circulation/loans")
-    public String loans(Model model) {
-        model.addAttribute("loans", circulationService.listLoans());
+    public String loans(@RequestParam(defaultValue = "") String query,
+                        @RequestParam(defaultValue = "ALL") String status,
+                        @RequestParam(defaultValue = "0") int page,
+                        Model model) {
+        var loanPage = circulationService.searchLoans(query, status, page);
+        model.addAttribute("loans", loanPage.getContent());
+        model.addAttribute("loanPage", loanPage);
+        model.addAttribute("query", query);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("popularBooks", circulationService.mostBorrowedTitles());
         model.addAttribute("librarianView", true);
         return "circulation/loans";
+    }
+
+    @PostMapping("/circulation/loans/{id}/fine-settlements")
+    public String settleFine(@PathVariable Long id,
+                             @RequestParam FineSettlementType type,
+                             @RequestParam String note,
+                             Authentication authentication,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            var settlement = circulationService.settleFine(id, type, note, authentication.getName());
+            String action = type == FineSettlementType.PAID ? "Payment recorded" : "Fine waived";
+            redirectAttributes.addFlashAttribute("success", action + ": VND "
+                    + settlement.getAmount().toPlainString());
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/circulation/loans";
     }
 
     @GetMapping("/circulation/mine")

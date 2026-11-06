@@ -1,7 +1,8 @@
 package com.elibrary.repository;
 
 import com.elibrary.domain.Book;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    List<Book> findAllByActiveTrueOrderByTitleAsc();
+    Page<Book> findAllByActiveTrueOrderByTitleAsc(Pageable pageable);
 
     Optional<Book> findByIsbn(String isbn);
 
@@ -23,5 +24,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             )
             order by b.title asc
             """)
-    List<Book> searchActive(@Param("keyword") String keyword);
+    Page<Book> searchActive(@Param("keyword") String keyword, Pageable pageable);
 }

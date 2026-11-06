@@ -21,6 +21,11 @@
             <div class="book-card-body"><p class="tag" th:text="${book.category}">Category</p><h2><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a></h2><p class="muted" th:text="${book.author}">Author</p><p class="small-text" th:text="|ISBN ${book.isbn}|">ISBN</p></div>
         </article>
     </div>
+    <nav class="pagination" aria-label="Catalogue pages" th:if="${bookPage.totalPages > 1}">
+        <a class="button quiet" th:if="${bookPage.hasPrevious()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number - 1})}">Previous</a>
+        <span th:text="|Page ${bookPage.number + 1} of ${bookPage.totalPages}|">Page 1</span>
+        <a class="button quiet" th:if="${bookPage.hasNext()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number + 1})}">Next</a>
+    </nav>
 </main>
 </body>
 </html>

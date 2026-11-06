@@ -6,6 +6,7 @@
     <div class="brand-mark">Create a member account</div>
     <p class="muted">Registration creates a library member account.</p>
     <form th:action="@{/register}" th:object="${registrationForm}" method="post" class="stack-form">
+        <div class="alert danger" th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}" th:text="${error}"></div>
         <label for="displayName">Display name</label>
         <input id="displayName" th:field="*{displayName}" maxlength="120" autocomplete="name" required>
         <p class="field-error" th:errors="*{displayName}"></p>
@@ -14,9 +15,14 @@
         <input id="username" th:field="*{username}" minlength="3" maxlength="80" autocomplete="username" required>
         <p class="field-error" th:errors="*{username}"></p>
 
+        <label for="email">Email</label>
+        <input id="email" th:field="*{email}" type="email" maxlength="254" autocomplete="email" required>
+        <p class="field-error" th:errors="*{email}"></p>
+
         <label for="password">Password</label>
         <input id="password" th:field="*{password}" type="password" maxlength="72" autocomplete="new-password" required>
         <p class="field-error" th:errors="*{password}"></p>
+        <p class="field-error" th:errors="*{passwordWithinBcryptLimit}"></p>
 
         <label for="confirmPassword">Confirm password</label>
         <input id="confirmPassword" th:field="*{confirmPassword}" type="password" autocomplete="new-password" required>

@@ -41,12 +41,12 @@ public class AuthController {
         }
 
         try {
-            registrationService.register(form.getUsername(), form.getDisplayName(), form.getPassword());
+            registrationService.register(form.getUsername(), form.getEmail(), form.getDisplayName(), form.getPassword());
         } catch (UserRegistrationService.UsernameAlreadyTakenException ex) {
-            bindingResult.rejectValue("username", "username.taken", "That username is already in use.");
+            bindingResult.reject("account.identifier.taken", "That username or email is already in use.");
             return "auth/register";
         } catch (DataIntegrityViolationException ex) {
-            bindingResult.rejectValue("username", "username.taken", "That username is already in use.");
+            bindingResult.reject("account.identifier.taken", "That username or email is already in use.");
             return "auth/register";
         }
         return "redirect:/login?registered";

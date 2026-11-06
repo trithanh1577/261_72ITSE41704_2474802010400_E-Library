@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: elibrary
+      MYSQL_USER: elibrary
+      MYSQL_PASSWORD: ${DB_PASSWORD:-local-elibrary-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local-root-password}
+    volumes:
+      - elibrary-mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping --host=127.0.0.1 --user=root --password=$$MYSQL_ROOT_PASSWORD --silent
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/elibrary?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: elibrary
+      DB_PASSWORD: ${DB_PASSWORD:-local-elibrary-password}
+      DB_DRIVER: com.mysql.cj.jdbc.Driver
+      DB_POOL_SIZE: "5"
+      DB_MIN_IDLE: "1"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  elibrary-mysql-data:

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container page-content narrow">
+    <section class="empty-state">
+        <p class="eyebrow" th:text="${status}">400</p>
+        <h1 th:text="${title}">Request could not be completed</h1>
+        <p class="muted" th:text="${message}">Please check the request and try again.</p>
+        <a class="button primary" th:href="@{/books}">Return to catalogue</a>
+    </section>
+</main>
+</body>
+</html>

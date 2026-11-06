@@ -1,5 +1,10 @@
 # Week 6 status
 
+This file preserves the Week 6 checkpoint snapshot. Later implementation and
+verification are recorded in [`week7-status.md`](week7-status.md). The limits
+listed below describe Week 6 and are superseded where Week 7 now implements
+those items.
+
 ## Implemented in the local working branch
 
 - A library member can submit a borrowing request for an active title and view

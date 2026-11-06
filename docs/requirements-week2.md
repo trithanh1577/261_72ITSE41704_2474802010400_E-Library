@@ -1,40 +1,62 @@
 # Week 2 requirements baseline
 
-This is the working requirements baseline, updated through the Week 6
-circulation slice. The proposal contains the full FR-01 to FR-18 scope; the
-implementation column below distinguishes completed Week 5/6 work from later
-features.
+This is the working requirements baseline, updated through the Week 8
+performance, validation and error-handling checks. The implementation status
+distinguishes automated evidence from manual acceptance checks.
 
 | ID | Requirement | Priority | Source | Verified by |
 |---|---|---|---|---|
-| FR-01 | The system shall authenticate users by username or email and password. | Must | Week 2 requirements analysis; proposal | TC-01, TC-02 (current implementation supports username only) |
-| FR-02 | The system shall restrict administrative functions to users with the Librarian role. | Must | Course Guidelines §4.1; proposal | TC-04 |
-| FR-03 | The system shall allow a librarian to create, view, update and deactivate book-title records. | Must | Topic 6; proposal | TC-05, TC-06 |
-| FR-04 | The system shall allow a librarian to add and update physical copies belonging to a book title. | Must | Topic 6 key entity Copy; proposal | TC-07, TC-08 |
-| FR-05 | The system shall allow a librarian to view and update member profiles, membership type and account status; public registration creates Member accounts only. | Must | Topic 6 member-management module | Manual librarian/member role checks pending |
-| FR-06 | The system shall allow users to search by title, author, ISBN or category. | Must | Topic 6 catalogue with search | TC-09, TC-10 |
-| FR-07 | The system shall show the current number of available copies for each title. | Must | Topic 6 catalogue with search | TC-11 |
-| FR-08 | The system shall allow a librarian to issue an available copy to an eligible member. | Must (Week 6) | Topic 6 loan/return module | TC-18; manual result pending |
-| FR-09 | The system shall reject a loan when the member or copy violates a circulation rule. | Must (Week 6) | Topic 6 non-CRUD rules | TC-19 to TC-21; manual result pending |
-| FR-10 | The system shall allow a librarian to record the return of an active loan. | Must (Week 6) | Topic 6 loan/return module | TC-22, TC-24; manual result pending |
-| FR-11 | The system shall calculate overdue fines using late days and the configured daily rate. | Must (Week 6) | Topic 6 fine calculation | TC-22, TC-23; manual result pending |
-| FR-12 | The system shall allow a member to reserve a title when no copy is currently available. | Must | Topic 6 reservation queue | Manual reservation flow pending |
-| FR-13 | The system shall prevent duplicate active reservations for the same member and title. | Must | Topic 6 reservation queue | Manual duplicate check pending |
-| FR-14 | The system shall allow a member to cancel an active reservation that has not been fulfilled. | Must | Topic 6 reservation queue | Manual cancellation check pending |
-| FR-15 | The system shall allocate a returned copy to the earliest eligible active reservation. | Must | Topic 6 reservation queue | Manual FIFO and 48-hour expiry checks pending |
-| FR-16 | The system shall allow a member to view active loans, due dates, overdue status, reservations and fines. | Must | Topic 6 circulation reports | Member page shows loans, overdue state, reservations and fines; manual check pending. |
-| FR-17 | The system shall allow a librarian to view current and historical loans by member, book or status. | Must (later slice) | Topic 6 circulation reports | Future librarian tests |
-| FR-18 | The system shall allow a librarian to mark a recorded fine as paid or waived with a note. | Should (later slice) | Topic 6 fine management | Future fine tests |
+| FR-01 | The system shall authenticate users by username or email and password, then show navigation allowed for the user's role. | Must | Week 2 requirements analysis; revised proposal | TC-01, TC-02, TC-28, TC-29, TC-60–TC-62, TC-66; username matching preserves case, email matching ignores case, and lookup keys are refreshed for existing accounts |
+| FR-02 | The system shall allow an authenticated user to sign out and end the current session. | Must | Revised proposal | TC-03; logout and a subsequent protected-page request verified through MockMvc/H2 |
+| FR-03 | The system shall restrict librarian-only functions to users with the Librarian role. | Must | Course Guidelines §4.1; revised proposal | TC-04, TC-37, TC-42–TC-45; protected routes verified with Spring Security and MockMvc |
+| FR-04 | The system shall allow a librarian to create, view, update and deactivate book-title records. | Must | Topic 6; revised proposal | TC-05, TC-06, TC-53 |
+| FR-05 | The system shall allow a librarian to add and update physical copies belonging to a book title. | Must | Topic 6 key entity Copy; revised proposal | TC-07, TC-08, TC-53, TC-64 |
+| FR-06 | Public registration shall create Member accounts only; a librarian shall be able to view and update a member's display name, membership type and account status. | Must | Topic 6 member-management module; team scope refinement | TC-30, TC-43, TC-45, TC-54, TC-66, TC-67; registration and profile-update integration tests passed; browser checks remain pending |
+| FR-07 | The system shall allow users to search active books by title, author, ISBN or category. | Must | Topic 6 catalogue with search; revised proposal | TC-09, TC-10, TC-38, TC-53 |
+| FR-08 | The system shall show book details and the current availability of physical copies. | Must | Topic 6 catalogue with search; revised proposal | TC-11, TC-53 |
+| FR-09 | The system shall allow an eligible member to submit a borrowing request for an available title and prevent a duplicate pending request. | Must | Topic 6 loan/return module; revised proposal | TC-16, TC-17, TC-65; authenticated request flow and concurrent duplicate protection tested with H2; browser/MySQL check pending |
+| FR-10 | The system shall allow a librarian to approve or reject a pending borrowing request. | Must | Topic 6 loan/return module; revised proposal | TC-26, TC-27, TC-46; authenticated request and approval workflow passed; browser/MySQL check pending |
+| FR-11 | The system shall allow a librarian to create a loan for an eligible member and an available physical copy. | Must | Topic 6 loan/return module; revised proposal | TC-18, TC-20, TC-21, TC-46, TC-50; automated checks passed; browser/MySQL check pending |
+| FR-12 | The system shall reject a new loan when the member or copy violates a borrowing rule. | Must | Topic 6 non-CRUD rules; revised proposal | TC-19, TC-21, TC-49; service and eligibility tests passed; browser result pending |
+| FR-13 | The system shall allow a librarian to record the return of an active loan. | Must | Topic 6 loan/return module; revised proposal | TC-22, TC-24, TC-46; authenticated return workflow passed; MySQL/browser check pending |
+| FR-14 | The system shall calculate overdue fines from chargeable late days, the configured daily rate, holidays and the per-loan cap. | Must | Topic 6 fine calculation; revised proposal | TC-22, TC-23, TC-46; fine rule and overdue-return workflow tested automatically; MySQL/browser check pending |
+| FR-15 | The system shall allow a member to reserve an unavailable title and cancel their own unfulfilled reservation. | Must | Topic 6 reservation queue; revised proposal | TC-31, TC-32, TC-47, TC-55; authenticated reservation and cancellation flows passed; browser check pending |
+| FR-16 | The system shall prevent duplicate active reservations for the same member and title. | Must | Topic 6 reservation queue; revised proposal | TC-31; service tests reject duplicates; browser check pending |
+| FR-17 | The system shall process active reservations in FIFO order and release an unclaimed READY copy after 48 hours to the next eligible member. | Must | Topic 6 reservation queue; revised proposal | TC-33, TC-47, TC-52, TC-63, TC-64; queue, claim and expiry logic tested automatically; browser check pending |
+| FR-18 | The system shall allow a member to view only their own current loans, history, reservations and fines. | Must | Topic 6 circulation reports; revised proposal | TC-46, TC-47, TC-55; member activity verified through authenticated integration flows; browser check pending |
+| FR-19 | The system shall allow a librarian to filter current and historical loans and record fine payment or waiver with an audit note. | Must | Topic 6 circulation reports and fine management; team scope refinement | TC-34–TC-37, TC-42, TC-44, TC-48, TC-51; authenticated report and settlement flows passed; browser filters/payment check pending |
+| FR-20 | The system shall provide a librarian report ranking book titles by recorded loan count. | Must | Topic 6 circulation and popularity reports; team scope refinement | TC-58, TC-59; ranking verified through MockMvc/H2; browser acceptance pending |
+
+## Requirement identifier notes
+
+FR-01 through FR-18 retain the identifiers from the revised proposal. FR-06
+was refined so members create their own Member accounts through public
+registration, while librarians review and update member profiles and account
+status; public registration cannot create a Librarian. FR-19 adds librarian
+loan-history filters and audited fine settlements, and FR-20 adds the
+circulation-popularity report. New requirements extend the baseline instead of
+renumbering the proposal requirements.
+
+## Business rules
+
+| ID | Rule | Verification |
+|---|---|---|
+| BR-01 | Membership type sets both active-loan limit and loan period: Standard 5/14 days, Student 3/21 days, Premium 8/21 days. | TC-18, TC-20, TC-50 |
+| BR-02 | Only an enabled Member with no overdue active loan and an unused membership loan slot may receive a loan. | TC-19, TC-49 |
+| BR-03 | A late return accrues VND 5,000 per chargeable day, skips configured holidays and is capped at VND 100,000 per loan. | TC-23, TC-51 |
+| BR-04 | An unavailable title's copy is offered in FIFO order to the earliest eligible member; a READY copy is held for 48 hours before release to the next member. | TC-33, TC-47, TC-52 |
+| BR-05 | A member may have at most one active (WAITING or READY) reservation for the same title. | TC-31 |
 
 ## Non-functional requirements
 
-| ID | Requirement | Verification planned |
+| ID | Requirement | Verification / current result |
 |---|---|---|
-| NFR-01 | At least 95% of catalogue searches shall finish within 2 seconds with 10,000 book titles. | Seed/performance test in Week 8. |
-| NFR-02 | Passwords shall use a one-way adaptive hash and shall not be written to logs. | Inspect stored values and logs. |
-| NFR-03 | Every protected server-side operation shall check the authenticated user's role. | Try member and librarian accounts. |
-| NFR-04 | Every user-editable field shall have server-side validation and a clear invalid-input message. | Negative tests for create/update forms. |
-| NFR-05 | Catalogue/circulation writes shall be transactional where one operation updates multiple records. | Service/integration tests from Week 6 onward. |
-| NFR-06 | Catalogue and circulation data shall remain available after restart. | Restart and retrieve seed/created records. |
-| NFR-07 | The main workflows shall work in current Chrome and Edge. | Browser checklist in Week 9. |
-| NFR-08 | Presentation, business logic and data access shall be separated; controllers shall not contain circulation rules. | Package review and design evidence. |
+| NFR-01 | At least 95% of catalogue searches shall finish within 2 seconds with 10,000 book titles. | Passed on H2: the latest clean 6 November offline package measured p95 at 11 ms for 100 warmed searches; MySQL/PostgreSQL measurement remains pending. |
+| NFR-02 | Passwords shall use a one-way adaptive hash and shall not be written to logs. | `AuthFlowIntegrationTest` verifies the stored value has a BCrypt prefix, differs from the submitted password and matches through the encoder; source review found no logging of password fields. |
+| NFR-03 | Every protected server-side operation shall check the authenticated user's role. | `SecurityConfig` defines role restrictions; MockMvc integration tests verify member denials for librarian book form, member management, circulation report and fine settlement, plus librarian access to management pages. Full browser role-matrix acceptance remains pending. |
+| NFR-04 | Every user-editable field shall have server-side validation and a clear invalid-input message. | Bean Validation and service checks on forms; TC-40/41 cover invalid request and missing-resource feedback; field-by-field negative browser checks remain pending. |
+| NFR-05 | Catalogue/circulation writes shall be transactional where one operation updates multiple records. | Source review confirms transactional service boundaries; authenticated catalogue and circulation workflows passed on H2. Failure/rollback behavior against MySQL remains unverified. |
+| NFR-06 | Catalogue and circulation data shall remain available after restart. | A seeded title remained searchable after restarting the JAR with the same H2 file database (TC-12). MySQL/Supabase restart checks remain pending. |
+| NFR-07 | The main workflows shall work in current Chrome and Edge. | Browser checklist in [`week9-acceptance.md`](week9-acceptance.md); acceptance remains pending. |
+| NFR-08 | Presentation, business logic and data access shall be separated; controllers shall not contain circulation rules. | Package review and layered architecture in `docs/design/architecture.md`; controllers delegate decisions to services. |
+| NFR-09 | Persistence and input-parsing failures shall return a structured recovery response without exposing internal details. | TC-40 verifies invalid request parsing; TC-56 verifies database failure returns a safe service-unavailable page. |

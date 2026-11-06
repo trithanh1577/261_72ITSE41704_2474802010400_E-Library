@@ -118,3 +118,25 @@ working notes are in [`journal.md`](journal.md).
 - Added Week 6 use cases and updated the requirement traceability notes.
 - This work is on local branch `feature/week-6-circulation`; it has not been
   reviewed, committed or pushed yet.
+
+## Week 7 - account and circulation extension
+
+- Added member registration with email and sign-in by exact-case username or case-insensitive email.
+- Added periodic reservation expiry processing, FIFO queue service tests, and audited fine payment/waiver records.
+- Added librarian loan-history filters and fine-settlement records under FR-19; reconciled the use-case set to 11 distinct user goals.
+- The current local branch is `feature/week-7-reservations`. The 34 functional tests passed. MySQL/browser/cloud acceptance checks remain pending; the performance benchmark was added in Week 8.
+
+## Week 8 - performance and reliability check
+
+- Added a repeatable catalogue benchmark using 10,000 active titles and 100 warmed paged searches.
+- The 6 November clean-source full-suite H2 run measured p95 at 54 ms, below the 2-second target. The packaged JAR also served a seeded title before and after restart against the same temporary H2 file database. These checks do not substitute for MySQL/PostgreSQL or hosted measurements.
+- Added structured error pages for invalid requests, missing records, duplicate data, database failures and unexpected failures; added real-login security integration checks for librarian-only routes.
+- Added authenticated end-to-end tests for book/copy management and search, member-account management, reservation cancellation, request/approve/return, reservation/claim/report/fine-payment journeys and a librarian popularity report. Domain tests cover loan terms, eligibility, fine balance and reservation-queue allocation; service checks cover fine waiver and duplicate reservations. New MockMvc checks cover logout, librarian-only book forms, blank/over-length title validation and duplicate copy codes. A database-failure test confirms safe 503 handling. A seed test verifies 50 unique titles and 51 copies in the local demo catalogue. The full Maven suite passed 68 tests with no failures, errors or skips; the clean-source H2 search p95 was 52 ms for 10,000 titles. The packaged JAR returned HTTP 200 for `/login` and `/books`.
+- Added FR-20 and UC-12 for the topic's circulation-popularity report; aligned BR-01–BR-05 identifiers across requirements and test cases. Refreshed architecture notes for fine settlements, pagination and reservation expiry scheduling.
+- A database-collation review found that Base64 username lookup keys could compare case-insensitively on MySQL. Username keys now use lowercase SHA-256, and startup refreshes legacy keys. Three regression checks were added; the full Maven suite passed 71 tests on 6 November.
+- Read-only reservation pages previously triggered expiry processing. Expiry now runs in the scheduled task or state-changing circulation actions; a regression check covers the read paths. The full offline package passed 72 tests, and the H2 search benchmark measured p95 at 49 ms.
+- Review also found that librarian copy editing could release a `RESERVED` copy from its queue. The edit form now keeps workflow-controlled statuses out of manual choices, and the service rejects attempts to release a held copy while allowing copy-code correction. Unit and MVC integration checks cover the behavior; the full offline package passed 75 tests with p95 58 ms on 6 November.
+- A final transaction review found a race in duplicate borrowing-request submission. The service now locks the member row before checking for a pending request, and a two-thread H2 integration test confirms only one pending request is created. At that review checkpoint, the offline package passed 76 tests and the H2 benchmark measured p95 42 ms. The MySQL concurrency check remains pending.
+- A registration boundary review found BCrypt's input limit is measured in UTF-8 bytes, not characters. The form and service now reject passwords over 72 bytes with a field message; short non-empty passwords remain allowed. A 75-byte password was rejected by MockMvc and service tests. The 6 November clean offline package passed 77 tests, and the H2 benchmark measured p95 11 ms. Browser/MySQL verification remains pending.
+- The packaged JAR was started twice against the same isolated H2 file. `/login` and `/books` returned HTTP 200 on both runs, and the seeded `Clean Code` title was still visible after restart. Both smoke-test processes were stopped after verification.
+- Browser acceptance, existing MySQL schema compatibility, hosted persistence, and release review remain open. The final-course report remains a separate deliverable.

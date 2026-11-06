@@ -58,4 +58,38 @@ class BookCopyServiceTest {
 
         verify(copyRepository, never()).save(copy);
     }
+
+    @Test
+    void librarianCannotReleaseCopyHeldForReservation() {
+        BookCopy copy = new BookCopy("CC-001", new Book("Clean Code", "9780132350884",
+                "Robert C. Martin", "Software", ""));
+        copy.setStatus(CopyStatus.RESERVED);
+        ReflectionTestUtils.setField(copy, "id", 10L);
+        when(copyRepository.findById(10L)).thenReturn(Optional.of(copy));
+        when(copyRepository.findByCopyCode("CC-001")).thenReturn(Optional.of(copy));
+        when(loanRepository.existsByCopyIdAndReturnedAtIsNull(10L)).thenReturn(false);
+
+        assertThatThrownBy(() -> copyService.update(10L, "CC-001", CopyStatus.AVAILABLE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("reservation workflow");
+
+        verify(copyRepository, never()).save(copy);
+    }
+
+    @Test
+    void librarianCanEditCopyCodeWithoutChangingReservationStatus() {
+        BookCopy copy = new BookCopy("CC-001", new Book("Clean Code", "9780132350884",
+                "Robert C. Martin", "Software", ""));
+        copy.setStatus(CopyStatus.RESERVED);
+        ReflectionTestUtils.setField(copy, "id", 10L);
+        when(copyRepository.findById(10L)).thenReturn(Optional.of(copy));
+        when(copyRepository.findByCopyCode("CC-002")).thenReturn(Optional.empty());
+        when(loanRepository.existsByCopyIdAndReturnedAtIsNull(10L)).thenReturn(false);
+
+        copyService.update(10L, "CC-002", CopyStatus.RESERVED);
+
+        verify(copyRepository).save(copy);
+        org.assertj.core.api.Assertions.assertThat(copy.getCopyCode()).isEqualTo("CC-002");
+        org.assertj.core.api.Assertions.assertThat(copy.getStatus()).isEqualTo(CopyStatus.RESERVED);
+    }
 }

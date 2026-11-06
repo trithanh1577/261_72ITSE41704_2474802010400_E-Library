@@ -8,6 +8,8 @@ import com.elibrary.domain.Book;
 import com.elibrary.repository.BookCopyRepository;
 import com.elibrary.repository.BookRepository;
 import java.util.List;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,18 +26,20 @@ class BookServiceTest {
     @Test
     void blankSearchReturnsActiveBooksInRepositoryOrder() {
         Book book = new Book("Clean Code", "9780132350884", "Robert C. Martin", "Software", "");
-        when(bookRepository.findAllByActiveTrueOrderByTitleAsc()).thenReturn(List.of(book));
+        when(bookRepository.findAllByActiveTrueOrderByTitleAsc(PageRequest.of(0, 24)))
+                .thenReturn(new PageImpl<>(List.of(book)));
 
-        assertThat(bookService.search("  ")).containsExactly(book);
-        verify(bookRepository).findAllByActiveTrueOrderByTitleAsc();
+        assertThat(bookService.search("  ", -3).getContent()).containsExactly(book);
+        verify(bookRepository).findAllByActiveTrueOrderByTitleAsc(PageRequest.of(0, 24));
     }
 
     @Test
     void keywordSearchTrimsWhitespaceBeforeQuerying() {
         Book book = new Book("Effective Java", "9780134685991", "Joshua Bloch", "Programming", "");
-        when(bookRepository.searchActive("java")).thenReturn(List.of(book));
+        when(bookRepository.searchActive("java", PageRequest.of(0, 24)))
+                .thenReturn(new PageImpl<>(List.of(book)));
 
-        assertThat(bookService.search(" java ")).containsExactly(book);
-        verify(bookRepository).searchActive("java");
+        assertThat(bookService.search(" java ", 0).getContent()).containsExactly(book);
+        verify(bookRepository).searchActive("java", PageRequest.of(0, 24));
     }
 }

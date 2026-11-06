@@ -37,7 +37,7 @@ public class BookCopyService {
     @Transactional(readOnly = true)
     public BookCopy getRequired(Long id) {
         return copyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Book copy was not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Book copy was not found."));
     }
 
     @Transactional
@@ -50,10 +50,16 @@ public class BookCopyService {
             }
         });
         boolean hasActiveLoan = loanRepository.existsByCopyIdAndReturnedAtIsNull(id);
-        if (hasActiveLoan && status != CopyStatus.ON_LOAN) {
+        if ((hasActiveLoan || copy.getStatus() == CopyStatus.ON_LOAN)
+                && status != CopyStatus.ON_LOAN) {
             throw new IllegalArgumentException("A copy with an active loan can only be returned through the loan workflow.");
         }
-        if (!hasActiveLoan && (status == CopyStatus.ON_LOAN || status == CopyStatus.RESERVED)) {
+        if (copy.getStatus() == CopyStatus.RESERVED && status != CopyStatus.RESERVED) {
+            throw new IllegalArgumentException("A reserved copy can only be released through the reservation workflow.");
+        }
+        if (!hasActiveLoan && copy.getStatus() != CopyStatus.ON_LOAN
+                && copy.getStatus() != CopyStatus.RESERVED
+                && (status == CopyStatus.ON_LOAN || status == CopyStatus.RESERVED)) {
             throw new IllegalArgumentException("Loan and reservation workflows control ON_LOAN and RESERVED copy statuses.");
         }
         copy.setCopyCode(normalisedCode);
