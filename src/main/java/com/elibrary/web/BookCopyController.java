@@ -20,10 +20,12 @@ public class BookCopyController {
 
     private final BookService bookService;
     private final BookCopyService copyService;
+    private final UiMessages messages;
 
-    public BookCopyController(BookService bookService, BookCopyService copyService) {
+    public BookCopyController(BookService bookService, BookCopyService copyService, UiMessages messages) {
         this.bookService = bookService;
         this.copyService = copyService;
+        this.messages = messages;
     }
 
     @GetMapping("/books/{bookId}/copies/new")
@@ -31,7 +33,6 @@ public class BookCopyController {
         model.addAttribute("book", bookService.getRequired(bookId));
         model.addAttribute("copyForm", new BookCopyForm());
         model.addAttribute("statuses", CopyStatus.values());
-        model.addAttribute("pageTitle", "Add physical copy");
         model.addAttribute("formAction", "/books/" + bookId + "/copies");
         return "copies/form";
     }
@@ -43,7 +44,6 @@ public class BookCopyController {
         model.addAttribute("copy", copy);
         model.addAttribute("copyForm", new BookCopyForm(copy.getCopyCode(), copy.getStatus()));
         model.addAttribute("statuses", CopyStatus.values());
-        model.addAttribute("pageTitle", "Edit physical copy");
         model.addAttribute("formAction", "/copies/" + id);
         return "copies/form";
     }
@@ -54,16 +54,16 @@ public class BookCopyController {
                           BindingResult bindingResult, Model model,
                           RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            prepareFormModel(bookId, model, "Add physical copy");
+            prepareFormModel(bookId, model);
             return "copies/form";
         }
         try {
             copyService.addCopy(bookId, form.getCopyCode());
-            redirectAttributes.addFlashAttribute("success", "Physical copy added.");
+            redirectAttributes.addFlashAttribute("success", messages.get("copy.added"));
             return "redirect:/books/" + bookId;
         } catch (IllegalArgumentException exception) {
-            prepareFormModel(bookId, model, "Add physical copy");
-            model.addAttribute("formError", exception.getMessage());
+            prepareFormModel(bookId, model);
+            model.addAttribute("formError", messages.fromService(exception.getMessage()));
             return "copies/form";
         }
     }
@@ -75,32 +75,30 @@ public class BookCopyController {
                              RedirectAttributes redirectAttributes) {
         BookCopy existing = copyService.getRequired(id);
         if (bindingResult.hasErrors()) {
-            prepareEditModel(existing, model, "Edit physical copy");
+            prepareEditModel(existing, model);
             return "copies/form";
         }
         try {
             copyService.update(id, form.getCopyCode(), form.getStatus());
-            redirectAttributes.addFlashAttribute("success", "Physical copy updated.");
+            redirectAttributes.addFlashAttribute("success", messages.get("copy.updated"));
             return "redirect:/books/" + existing.getBook().getId();
         } catch (IllegalArgumentException exception) {
-            prepareEditModel(existing, model, "Edit physical copy");
-            model.addAttribute("formError", exception.getMessage());
+            prepareEditModel(existing, model);
+            model.addAttribute("formError", messages.fromService(exception.getMessage()));
             return "copies/form";
         }
     }
 
-    private void prepareFormModel(Long bookId, Model model, String pageTitle) {
+    private void prepareFormModel(Long bookId, Model model) {
         model.addAttribute("book", bookService.getRequired(bookId));
         model.addAttribute("statuses", CopyStatus.values());
-        model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("formAction", "/books/" + bookId + "/copies");
     }
 
-    private void prepareEditModel(BookCopy copy, Model model, String pageTitle) {
+    private void prepareEditModel(BookCopy copy, Model model) {
         model.addAttribute("book", copy.getBook());
         model.addAttribute("copy", copy);
         model.addAttribute("statuses", CopyStatus.values());
-        model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("formAction", "/copies/" + copy.getId());
     }
 }

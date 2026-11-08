@@ -21,10 +21,12 @@ public class BookController {
 
     private final BookService bookService;
     private final CirculationService circulationService;
+    private final UiMessages messages;
 
-    public BookController(BookService bookService, CirculationService circulationService) {
+    public BookController(BookService bookService, CirculationService circulationService, UiMessages messages) {
         this.bookService = bookService;
         this.circulationService = circulationService;
+        this.messages = messages;
     }
 
     @GetMapping("/books")
@@ -53,14 +55,12 @@ public class BookController {
     @GetMapping("/books/new")
     public String newBook(Model model) {
         model.addAttribute("book", new Book());
-        model.addAttribute("pageTitle", "Add book");
         return "books/form";
     }
 
     @GetMapping("/books/{id}/edit")
     public String editBook(@PathVariable Long id, Model model) {
         model.addAttribute("book", bookService.getRequired(id));
-        model.addAttribute("pageTitle", "Edit book");
         return "books/form";
     }
 
@@ -69,16 +69,14 @@ public class BookController {
                        BindingResult bindingResult, Model model,
                        RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageTitle", book.getId() == null ? "Add book" : "Edit book");
             return "books/form";
         }
         try {
             Book saved = bookService.save(book);
-            redirectAttributes.addFlashAttribute("success", "Book saved successfully.");
+            redirectAttributes.addFlashAttribute("success", messages.get("book.saved"));
             return "redirect:/books/" + saved.getId();
         } catch (IllegalArgumentException exception) {
-            model.addAttribute("pageTitle", book.getId() == null ? "Add book" : "Edit book");
-            model.addAttribute("formError", exception.getMessage());
+            model.addAttribute("formError", messages.fromService(exception.getMessage()));
             return "books/form";
         }
     }
@@ -86,7 +84,7 @@ public class BookController {
     @PostMapping("/books/{id}/deactivate")
     public String deactivate(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         bookService.deactivate(id);
-        redirectAttributes.addFlashAttribute("success", "Book was deactivated.");
+        redirectAttributes.addFlashAttribute("success", messages.get("book.deactivated"));
         return "redirect:/books";
     }
 }

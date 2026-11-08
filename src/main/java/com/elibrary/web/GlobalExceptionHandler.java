@@ -20,48 +20,50 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private final UiMessages messages;
+
+    public GlobalExceptionHandler(UiMessages messages) {
+        this.messages = messages;
+    }
 
     @ExceptionHandler({ResourceNotFoundException.class, NoHandlerFoundException.class,
             NoResourceFoundException.class})
     public ModelAndView notFound(Exception exception, HttpServletRequest request) {
-        return error(HttpStatus.NOT_FOUND, "Page not found",
-                "The requested page or record could not be found.", request);
+        return error(HttpStatus.NOT_FOUND, messages.get("error.pageNotFound"),
+                messages.get("error.pageNotFoundMessage"), request);
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class})
     public ModelAndView invalidRequest(Exception exception, HttpServletRequest request) {
-        return error(HttpStatus.BAD_REQUEST, "Check your request",
-                "One of the submitted values is invalid. Check the form and try again.", request);
+        return error(HttpStatus.BAD_REQUEST, messages.get("error.checkRequest"),
+                messages.get("error.invalidRequest"), request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ModelAndView invalidValue(IllegalArgumentException exception, HttpServletRequest request) {
         String message = exception.getMessage();
-        return error(HttpStatus.BAD_REQUEST, "Check your request",
-                message == null || message.isBlank()
-                        ? "One of the submitted values is invalid. Check the form and try again."
-                        : message,
-                request);
+        return error(HttpStatus.BAD_REQUEST, messages.get("error.checkRequest"),
+                messages.fromService(message), request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ModelAndView dataConflict(DataIntegrityViolationException exception, HttpServletRequest request) {
-        return error(HttpStatus.CONFLICT, "Could not save these details",
-                "A record with the same unique details already exists. Review the values and try again.", request);
+        return error(HttpStatus.CONFLICT, messages.get("error.saveConflict"),
+                messages.get("error.conflictMessage"), request);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ModelAndView databaseUnavailable(DataAccessException exception, HttpServletRequest request) {
         logger.error("Database operation failed for {}", request.getRequestURI(), exception);
-        return error(HttpStatus.SERVICE_UNAVAILABLE, "Data is temporarily unavailable",
-                "The library could not access its database. Please try again later.", request);
+        return error(HttpStatus.SERVICE_UNAVAILABLE, messages.get("error.databaseTitle"),
+                messages.get("error.databaseUnavailable"), request);
     }
 
     @ExceptionHandler(Exception.class)
     public ModelAndView unexpectedError(Exception exception, HttpServletRequest request) {
         logger.error("Unexpected request failure for {}", request.getRequestURI(), exception);
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong",
-                "The request could not be completed. Please return to the catalogue and try again.", request);
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, messages.get("error.unexpectedTitle"),
+                messages.get("error.unexpectedMessage"), request);
     }
 
     private ModelAndView error(HttpStatus status, String title, String message, HttpServletRequest request) {

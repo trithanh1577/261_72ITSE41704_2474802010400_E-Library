@@ -52,6 +52,33 @@ class RequestErrorHandlingIntegrationTest {
     }
 
     @Test
+    void librarianCannotOpenMemberActivity() throws Exception {
+        MockHttpSession session = signIn("admin", "admin123");
+        mockMvc.perform(get("/circulation/mine").session(session))
+                .andExpect(status().isForbidden())
+                .andExpect(forwardedUrl("/error/403"));
+    }
+
+    @Test
+    void forbiddenPageCanRenderPostForward() throws Exception {
+        MockHttpSession session = signIn("member", "member123");
+        mockMvc.perform(post("/error/403").session(session)
+                        .param("_csrf", csrfToken(session)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Access denied")));
+    }
+
+    @Test
+    void anonymousInvalidCsrfPostShowsForbiddenPage() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "nobody")
+                        .param("password", "invalid")
+                        .param("_csrf", "invalid"))
+                .andExpect(status().isForbidden())
+                .andExpect(forwardedUrl("/error/403"));
+    }
+
+    @Test
     void memberCannotOpenMemberManagement() throws Exception {
         MockHttpSession session = signIn("member", "member123");
         mockMvc.perform(get("/members").session(session))
@@ -84,6 +111,16 @@ class RequestErrorHandlingIntegrationTest {
     void memberCannotOpenLibrarianBookForm() throws Exception {
         MockHttpSession session = signIn("member", "member123");
         mockMvc.perform(get("/books/new").session(session))
+                .andExpect(status().isForbidden())
+                .andExpect(forwardedUrl("/error/403"));
+    }
+
+    @Test
+    void librarianCannotSubmitMemberBorrowRequest() throws Exception {
+        MockHttpSession session = signIn("admin", "admin123");
+        mockMvc.perform(post("/books/1/requests")
+                        .session(session)
+                        .param("_csrf", csrfToken(session)))
                 .andExpect(status().isForbidden())
                 .andExpect(forwardedUrl("/error/403"));
     }

@@ -34,7 +34,7 @@ public class AuthController {
                            BindingResult bindingResult) {
         if (form.getPassword() != null && form.getConfirmPassword() != null
                 && !Objects.equals(form.getPassword(), form.getConfirmPassword())) {
-            bindingResult.rejectValue("confirmPassword", "password.mismatch", "Passwords do not match.");
+            bindingResult.rejectValue("confirmPassword", "validation.password.mismatch");
         }
         if (bindingResult.hasErrors()) {
             return "auth/register";
@@ -43,10 +43,10 @@ public class AuthController {
         try {
             registrationService.register(form.getUsername(), form.getEmail(), form.getDisplayName(), form.getPassword());
         } catch (UserRegistrationService.UsernameAlreadyTakenException ex) {
-            bindingResult.reject("account.identifier.taken", "That username or email is already in use.");
+            bindingResult.reject("auth.identifierTaken");
             return "auth/register";
         } catch (DataIntegrityViolationException ex) {
-            bindingResult.reject("account.identifier.taken", "That username or email is already in use.");
+            bindingResult.reject("auth.identifierTaken");
             return "auth/register";
         }
         return "redirect:/login?registered";

@@ -9,25 +9,25 @@ import java.nio.charset.StandardCharsets;
 
 public class RegistrationForm {
 
-    @NotBlank
-    @Size(min = 3, max = 80)
-    @Pattern(regexp = "[A-Za-z0-9._-]+", message = "Use letters, numbers, dots, underscores or hyphens only.")
+    @NotBlank(message = "{validation.required}")
+    @Size(min = 3, max = 80, message = "{validation.username.size}")
+    @Pattern(regexp = "[A-Za-z0-9._-]+", message = "{validation.username.pattern}")
     private String username;
 
-    @NotBlank
-    @Email
-    @Size(max = 254)
+    @NotBlank(message = "{validation.required}")
+    @Email(message = "{validation.email.invalid}")
+    @Size(max = 254, message = "{validation.email.max}")
     private String email;
 
-    @NotBlank
-    @Size(max = 120)
+    @NotBlank(message = "{validation.required}")
+    @Size(max = 120, message = "{validation.displayName.max}")
     private String displayName;
 
-    @NotBlank
-    @Size(max = 72, message = "Password must not exceed BCrypt's 72-byte input limit.")
+    @NotBlank(message = "{validation.required}")
+    @Size(max = 72, message = "{validation.password.bcryptLimit}")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "{validation.required}")
     private String confirmPassword;
 
     public String getUsername() { return username; }
@@ -38,7 +38,7 @@ public class RegistrationForm {
     public void setDisplayName(String displayName) { this.displayName = displayName; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    @AssertTrue(message = "Password must not exceed BCrypt's 72-byte UTF-8 input limit.")
+    @AssertTrue(message = "{validation.password.bcryptLimit}")
     public boolean isPasswordWithinBcryptLimit() {
         return password == null || password.getBytes(StandardCharsets.UTF_8).length <= 72;
     }

@@ -7,6 +7,10 @@ a { color:var(--brand); text-decoration:none; } a:hover { text-decoration:underl
 .brand,.brand-mark { color:var(--brand); font-weight:800; letter-spacing:-.04em; font-size:1.2rem; } .nav-actions,.button-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .role-badge,.tag,.status { display:inline-flex; border-radius:999px; padding:3px 10px; font-size:.75rem; font-weight:700; letter-spacing:.03em; } .role-badge,.tag { background:#e8f0f4; color:var(--brand); }
 .link-button { border:0; background:transparent; color:var(--muted); cursor:pointer; font:inherit; }
+.language-switch { display:inline-flex; align-items:center; gap:3px; padding:3px; border:1px solid var(--line); border-radius:999px; background:#fff; }
+.language-choice { min-width:34px; padding:3px 7px; border-radius:999px; color:var(--muted); text-align:center; font-size:.78rem; font-weight:800; }
+.language-choice.is-active { background:var(--brand); color:#fff; }
+.auth-language { display:flex; justify-content:flex-end; margin-bottom:18px; }
 .page-content { padding:48px 0 72px; } .page-heading,.section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; margin-bottom:28px; }
 .eyebrow { margin:0 0 5px; color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; } h1,h2,p { margin-top:0; } h1 { margin-bottom:8px; letter-spacing:-.04em; font-size:clamp(2rem,4vw,3.2rem); line-height:1.1; } h2 { margin-bottom:8px; font-size:1.2rem; }
 .lead { font-size:1.1rem; } .muted,.small-text,.hint { color:var(--muted); } .small-text,.hint { font-size:.9rem; }

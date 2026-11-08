@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Reservations')}"></head>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{reservations.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
 <main class="container page-content">
-    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Reservations</h1><p class="muted">The oldest waiting member receives the next returned copy for 48 hours.</p></div></div>
+    <div class="page-heading"><div><p class="eyebrow" th:text="#{bookForm.eyebrow}">LIBRARIAN</p><h1 th:text="#{reservations.heading}">Reservations</h1><p class="muted" th:text="#{reservations.description}">The oldest waiting member receives the next returned copy for 48 hours.</p></div></div>
     <div class="alert success" th:if="${success}" th:text="${success}"></div>
     <div class="alert danger" th:if="${error}" th:text="${error}"></div>
     <section class="panel" th:if="${!#lists.isEmpty(reservations)}">
-        <table class="data-table"><thead><tr><th>Placed</th><th>Member</th><th>Book</th><th>Copy</th><th>Status</th><th>Collect by</th></tr></thead>
+        <table class="data-table"><thead><tr><th th:text="#{reservations.placed}">Placed</th><th th:text="#{common.member}">Member</th><th th:text="#{common.book}">Book</th><th th:text="#{common.copy}">Copy</th><th th:text="#{common.status}">Status</th><th th:text="#{reservations.collectBy}">Collect by</th></tr></thead>
             <tbody><tr th:each="reservation : ${reservations}">
                 <td th:text="${#temporals.format(reservation.reservedAt, 'yyyy-MM-dd HH:mm')}">Placed</td>
                 <td th:text="${reservation.member.displayName}">Member</td>
                 <td><a th:href="@{/books/{id}(id=${reservation.book.id})}" th:text="${reservation.book.title}">Book</a></td>
                 <td th:text="${reservation.copy == null ? '—' : reservation.copy.copyCode}">Copy</td>
-                <td th:text="${reservation.status}">Status</td>
+                <td th:text="${#messages.msg('status.' + reservation.status.name())}">Status</td>
                 <td th:text="${reservation.readyUntil == null ? '—' : #temporals.format(reservation.readyUntil, 'yyyy-MM-dd HH:mm')}">Collect by</td>
             </tr></tbody>
         </table>
     </section>
-    <div class="empty-state" th:if="${#lists.isEmpty(reservations)}"><h2>No reservations yet</h2><p class="muted">Member reservation requests will appear here.</p></div>
+    <div class="empty-state" th:if="${#lists.isEmpty(reservations)}"><h2 th:text="#{reservations.emptyTitle}">No reservations yet</h2><p class="muted" th:text="#{reservations.emptyText}">Member reservation requests will appear here.</p></div>
 </main>
 </body>
 </html>

@@ -96,11 +96,12 @@ Loan and its later adjustments are `FineSettlement` records.
 constraint conflicts and database failures into status-specific pages. The
 pages show a recovery action without exposing stack traces or SQL details.
 
-The design contains twelve meaningful domain classes: seven persistent
-entities and five policy/value/aggregate classes (`FinePolicy`, `FineBalance`,
-`BorrowingEligibility`, `LoanTerms` and `ReservationQueue`). They encode
-different persistence and circulation responsibilities rather than counting
-controllers or repositories toward the domain-class target.
+The design contains twelve meaningful domain types: seven persistent entities,
+three Java classes and two Java records used for policy, value and aggregate
+responsibilities (`FinePolicy`, `FineBalance`, `BorrowingEligibility`,
+`LoanTerms` and `ReservationQueue`). They encode different persistence and
+circulation responsibilities rather than counting controllers or repositories
+toward the domain-class target.
 
 ## Verification boundaries
 

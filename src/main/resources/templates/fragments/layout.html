@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${title} + ' | E-Library'">E-Library</title>
+    <title th:text="${title} + ' | ' + #{app.name}">E-Library</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -11,19 +11,26 @@
     <div class="container nav-inner">
         <a class="brand" th:href="@{/books}">E-Library</a>
         <div class="nav-actions">
+            <div th:replace="~{fragments/layout :: language-switch}"></div>
             <span class="role-badge" th:if="${#authorization.expression('isAuthenticated()')}"
-                  th:text="${#authorization.expression('hasRole(''LIBRARIAN'')') ? 'Librarian' : 'Member'}">Member</span>
-            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/requests}">Requests</a>
-            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/loans}">Loans</a>
-            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/reservations}">Reservations</a>
-            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/members}">Members</a>
-            <a th:if="${#authorization.expression('hasRole(''MEMBER'')')}" th:href="@{/circulation/mine}">My activity</a>
-            <a th:unless="${#authorization.expression('isAuthenticated()')}" th:href="@{/login}">Sign in</a>
+                  th:text="${#authorization.expression('hasRole(''LIBRARIAN'')') ? #messages.msg('role.librarian') : #messages.msg('role.member')}">Member</span>
+            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/requests}" th:text="#{nav.requests}">Requests</a>
+            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/loans}" th:text="#{nav.loans}">Loans</a>
+            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/circulation/reservations}" th:text="#{nav.reservations}">Reservations</a>
+            <a th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/members}" th:text="#{nav.members}">Members</a>
+            <a th:if="${#authorization.expression('hasRole(''MEMBER'')')}" th:href="@{/circulation/mine}" th:text="#{nav.myActivity}">My activity</a>
+            <a th:unless="${#authorization.expression('isAuthenticated()')}" th:href="@{/login}" th:text="#{nav.signIn}">Sign in</a>
             <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
-                <button class="link-button" type="submit">Sign out</button>
+                <button class="link-button" type="submit" th:text="#{nav.signOut}">Sign out</button>
             </form>
         </div>
     </div>
 </nav>
+<div th:fragment="language-switch" class="language-switch" role="group" th:attr="aria-label=#{language.label}">
+    <a class="language-choice" th:classappend="${#locale.language == 'en' ? ' is-active' : ''}"
+       th:href="${languageUrlEn}" hreflang="en" th:attr="aria-label=#{language.english}">EN</a>
+    <a class="language-choice" th:classappend="${#locale.language == 'vi' ? ' is-active' : ''}"
+       th:href="${languageUrlVi}" hreflang="vi" th:attr="aria-label=#{language.vietnamese}">VI</a>
+</div>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 | ID | Requirement | Test | Expected result | Automated result |
 |---|---|---|---|---|
-| TC-39 | NFR-01 | Seed 10,000 active titles, warm the catalogue search, then measure 100 paged searches for a common term. | The 95th percentile is below 2 seconds; each page contains at most 24 titles and reports the matching total. | Latest clean 6 November 2026 H2 package: p95 11 ms. Earlier 77-test, 76-test and 72-test runs measured 10 ms, 42 ms and 49 ms. This local result does not establish MySQL or Supabase performance. |
+| TC-39 | NFR-01 | Seed 10,000 active titles, warm the catalogue search, then measure 100 paged searches for a common term. | The 95th percentile is below 2 seconds; each page contains at most 24 titles and reports the matching total. | Clean no-cache Docker Maven `package` on 7 November 2026: p95 14 ms. Earlier 6 November H2 runs measured 11 ms, 10 ms, 42 ms and 49 ms. This local H2 result does not establish MySQL or Supabase performance. |
 | TC-40 | NFR-04 | Request the catalogue with a non-numeric page parameter. | A friendly validation page is returned with HTTP 400. | Passed in MockMvc. |
 | TC-41 | NFR-08 | Request a book ID that does not exist. | A friendly not-found page is returned with HTTP 404 and no stack trace. | Passed in MockMvc. |
 | TC-42 | FR-03 / FR-19 / NFR-03 | Sign in as a member and open the librarian loan report. | Access is denied with HTTP 403. | Passed in MockMvc using the actual login form and security filters. |

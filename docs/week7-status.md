@@ -1,6 +1,6 @@
 # Week 7 status
 
-## Implemented in the local working branch
+## Implemented functionality
 
 - Member registration validates the username, email, display name and matching
   password fields. Public registration always creates a `MEMBER` account.
@@ -30,9 +30,15 @@ ownership plus database-backed loan report/fine-history queries and catalogue
 page boundaries. Later H2 benchmark runs measured p95 at 56 ms and 48 ms. The
 6 November intermediate offline package compiled 50 application and 20 test
 Java files, passed 72 tests and measured p95 at 49 ms. Later regression checks
-brought the suite to 77 passing tests and the latest clean H2 p95 to 11 ms; see
+brought the suite to 89 passing tests and the latest clean H2 p95 to 14 ms on
+7 November; see
 [`test-cases-week9.md`](test-cases-week9.md). These local results do not verify
 the same target against MySQL or Supabase.
+
+The later EN/VI interface update added locale integration and localized error
+checks. On 7 November 2026, a clean Docker Maven `package` completed with 89 tests,
+zero failures, zero errors and zero skips. Browser acceptance for the language
+control is tracked separately in [`week9-acceptance.md`](week9-acceptance.md).
 
 The tests use unit mocks or H2 repository tests. They do not confirm behavior
 against the team's MySQL instance, Render, Supabase or a real browser.
@@ -45,7 +51,7 @@ against the team's MySQL instance, Render, Supabase or a real browser.
 - Verify the `username_key`, email and `fine_settlements` schema update on an
   existing database and confirm prior accounts still sign in.
 - Check production variables, Supabase connectivity and persistence after a
-  Render restart. This local change has not been pushed or deployed.
+  Render restart.
 - MySQL/PostgreSQL performance measurement at 10,000 titles, Chrome/Edge
   acceptance and final
   release review remain open; no final-course report is included here.

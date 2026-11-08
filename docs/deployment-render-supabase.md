@@ -1,11 +1,8 @@
 # Public deployment: Render and Supabase
 
 The repository contains a Docker-based Render web-service configuration and
-uses Supabase PostgreSQL for hosted persistence. A Render service was created
-earlier, but the deployment screenshot supplied by the team showed a failed
-start because Hibernate could not read JDBC metadata. The current local branch
-has not been pushed or deployed, so the hosted service does not yet verify this
-version. Use the steps below to correct the environment and re-check it.
+uses Supabase PostgreSQL for hosted persistence. Use the steps below to
+configure the service and verify a deployment.
 
 ## 1. Prepare Supabase
 
@@ -19,8 +16,7 @@ version. Use the steps below to correct the environment and re-check it.
 
 ## 2. Connect the repository to Render
 
-1. Push the deployment-ready branch to the team's GitHub repository. Per the
-   team's handoff, Ngan3112 should perform the push.
+1. Push the reviewed source branch to the team's GitHub repository.
 2. In Render, create a **Blueprint** from that repository and select the
    repository root containing `render.yaml`.
 3. During Blueprint setup, enter the requested values for the variables marked
@@ -29,17 +25,15 @@ version. Use the steps below to correct the environment and re-check it.
    shown by Supabase. For the project values in the supplied screenshot, use:
 
    ```text
-   jdbc:postgresql://aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+   jdbc:postgresql://<session-pooler-host>:5432/postgres?sslmode=require
    ```
 
-5. Set `DB_USERNAME` to the session-pooler username shown by Supabase. In the
-   supplied project screenshot it is `postgres.ccltveljoxplbivrenjz`. Set
-   `DB_PASSWORD` to the actual Supabase database password; do not leave
-   `[YOUR-PASSWORD]` in the value. If the password contains URI-reserved
-   characters, enter it only in the separate `DB_PASSWORD` field, not inside
+5. Set `DB_USERNAME` and `DB_PASSWORD` to the values shown or configured in
+   Supabase. Enter the actual password in `DB_PASSWORD`; do not include it in
    `DB_URL`.
    Set `BOOTSTRAP_ADMIN_USERNAME` to the first librarian's username and
-   `BOOTSTRAP_ADMIN_PASSWORD` to a unique password with at least 12 characters.
+   `BOOTSTRAP_ADMIN_PASSWORD` to a unique password with at least 12 characters
+   and no more than 72 UTF-8 bytes (the BCrypt input limit).
    The display name is optional.
 6. Review the environment values, then create/deploy the Blueprint. Render
    builds the Docker image, starts the app and provides an `onrender.com` URL.
@@ -54,9 +48,7 @@ profiles, membership type and enabled status from the Members page.
 ## 3. Verify the deployment
 
 1. In Render, verify the service is connected to the intended repository and
-   branch. The screenshot supplied on 22 October showed
-   `feature/week-6-circulation`; select `main` after the reviewed changes have
-   been merged there if main-branch auto-deploy is intended.
+   deployment branch.
 2. Confirm Render reports the service as live and `/login` responds. If startup
    fails, inspect the first database/driver error in the deploy logs and verify
    `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and `DB_DRIVER=org.postgresql.Driver`.
@@ -66,22 +58,20 @@ profiles, membership type and enabled status from the Members page.
 5. Do not mark the cloud persistence check complete until it has been tested
    against the actual Supabase project.
 
-The Blueprint uses Render's free web-service plan. Free services can spin down
-when idle, so the first request after inactivity may be delayed. Supabase and
-Render account availability, quotas and pricing can change; check both
-dashboards before choosing a plan.
+The application stores records in Supabase PostgreSQL and binds to Render's
+`PORT` environment variable (with `8080` as the local default). Review the
+Render and Supabase dashboards for service status and plan limits.
 
 ## Credentials and ownership
 
 - Never commit database or bootstrap passwords, `.env` files, Supabase keys or
   a production database dump.
-- Do not send these secrets in chat. Enter them directly in Render's secret
-  environment-variable form.
+- Enter secrets directly in Render's secret environment-variable form.
 - If a production password has been shared or captured in a screenshot, rotate
   it. Changing `BOOTSTRAP_ADMIN_PASSWORD` alone does not change an existing
   librarian account's password.
-- Render needs repository access for deployment. Ngan3112 should push the
-  prepared branch, and a team member with Render access must connect it.
+- Render needs repository access for deployment. A team member with Render
+  access must connect the repository and branch.
 
 References: [Render Web Services](https://render.com/docs/web-services),
 [Render Blueprint YAML](https://render.com/docs/blueprint-spec),

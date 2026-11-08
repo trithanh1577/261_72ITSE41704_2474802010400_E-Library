@@ -1,7 +1,8 @@
 flowchart LR
     L[Librarian]
     M[Library Member]
-    UC1((UC-01 Register, sign in and sign out))
+    P[Prospective Member]
+    UC1((UC-01 Access a library account))
     UC2((UC-02 Manage books and copies))
     UC3((UC-03 Search books and check availability))
     UC4((UC-04 Submit a borrowing request))
@@ -13,8 +14,9 @@ flowchart LR
     UC10((UC-10 Claim or cancel a reservation))
     UC11((UC-11 Review circulation history and settle a fine))
     UC12((UC-12 View title popularity report))
-    L --- UC1
+    P --- UC1
     M --- UC1
+    L --- UC1
     L --- UC2
     L --- UC3
     M --- UC3

@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Size;
 
 public class BookCopyForm {
 
-    @NotBlank(message = "Copy code is required")
-    @Size(max = 50, message = "Copy code must be at most 50 characters")
+    @NotBlank(message = "{validation.copyCode.required}")
+    @Size(max = 50, message = "{validation.copyCode.max}")
     private String copyCode;
 
-    @NotNull(message = "Copy status is required")
+    @NotNull(message = "{validation.copyStatus.required}")
     private CopyStatus status = CopyStatus.AVAILABLE;
 
     public BookCopyForm() { }

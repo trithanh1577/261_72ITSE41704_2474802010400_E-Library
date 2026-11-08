@@ -24,7 +24,7 @@ public class SecurityConfig {
         http
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/login", "/register", "/error").permitAll()
+                        .requestMatchers("/css/**", "/login", "/register", "/error", "/error/403").permitAll()
                         .requestMatchers("/books/new", "/books/save", "/books/*/edit", "/books/*/deactivate",
                                 "/books/*/copies/**", "/copies/**").hasRole("LIBRARIAN")
                         .requestMatchers("/circulation/requests", "/circulation/requests/*/approve",
@@ -32,8 +32,8 @@ public class SecurityConfig {
                                 "/circulation/loans/*/return", "/circulation/loans/*/fine-settlements",
                                 "/circulation/reservations",
                                 "/members", "/members/*/update").hasRole("LIBRARIAN")
-                        .requestMatchers("/books/*/reservations", "/reservations/*/claim",
-                                "/reservations/*/cancel").hasRole("MEMBER")
+                        .requestMatchers("/books/*/requests", "/books/*/reservations", "/reservations/*/claim",
+                                "/reservations/*/cancel", "/circulation/mine").hasRole("MEMBER")
                         .requestMatchers("/books", "/books/*").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
