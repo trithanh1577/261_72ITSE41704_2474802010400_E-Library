@@ -17,27 +17,27 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Title is required")
-    @Size(max = 180, message = "Title must be at most 180 characters")
+    @NotBlank(message = "{validation.title.required}")
+    @Size(max = 180, message = "{validation.title.max}")
     @Column(nullable = false, length = 180)
     private String title;
 
-    @NotBlank(message = "ISBN is required")
-    @Size(max = 30, message = "ISBN must be at most 30 characters")
+    @NotBlank(message = "{validation.isbn.required}")
+    @Size(max = 30, message = "{validation.isbn.max}")
     @Column(nullable = false, unique = true, length = 30)
     private String isbn;
 
-    @NotBlank(message = "Author is required")
-    @Size(max = 160, message = "Author must be at most 160 characters")
+    @NotBlank(message = "{validation.author.required}")
+    @Size(max = 160, message = "{validation.author.max}")
     @Column(nullable = false, length = 160)
     private String author;
 
-    @NotBlank(message = "Category is required")
-    @Size(max = 100, message = "Category must be at most 100 characters")
+    @NotBlank(message = "{validation.category.required}")
+    @Size(max = 100, message = "{validation.category.max}")
     @Column(nullable = false, length = 100)
     private String category;
 
-    @Size(max = 1000, message = "Description must be at most 1000 characters")
+    @Size(max = 1000, message = "{validation.description.max}")
     @Column(length = 1000)
     private String description;
 

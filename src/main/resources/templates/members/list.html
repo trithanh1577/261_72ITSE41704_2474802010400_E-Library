@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Members')}"></head>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{members.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
 <main class="container page-content">
-    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Member accounts</h1><p class="muted">Edit member profiles, membership limits and account access.</p></div></div>
+    <div class="page-heading"><div><p class="eyebrow" th:text="#{bookForm.eyebrow}">LIBRARIAN</p><h1 th:text="#{members.heading}">Member accounts</h1><p class="muted" th:text="#{members.description}">Edit member profiles, membership limits and account access.</p></div></div>
     <div class="alert success" th:if="${success}" th:text="${success}"></div>
     <div class="alert danger" th:if="${error}" th:text="${error}"></div>
     <section class="panel" th:if="${!#lists.isEmpty(members)}">
-        <table class="data-table"><thead><tr><th>Username</th><th>Member settings</th></tr></thead>
+        <table class="data-table"><thead><tr><th th:text="#{auth.username}">Username</th><th th:text="#{members.settings}">Member settings</th></tr></thead>
             <tbody><tr th:each="member : ${members}">
                 <td th:text="${member.username}">username</td>
                 <td><form class="stack-form" th:action="@{/members/{id}/update(id=${member.id})}" method="post">
-                    <label th:for="|display-${member.id}|">Display name</label>
+                    <label th:for="|display-${member.id}|" th:text="#{auth.displayName}">Display name</label>
                     <input th:id="|display-${member.id}|" name="displayName" th:value="${member.displayName}" maxlength="120" required>
-                    <label th:for="|type-${member.id}|">Membership</label>
+                    <label th:for="|type-${member.id}|" th:text="#{members.membership}">Membership</label>
                     <select th:id="|type-${member.id}|" name="membershipType">
                         <option th:each="type : ${membershipTypes}" th:value="${type}" th:selected="${type == member.membershipType}"
-                                th:text="|${type} — ${type.maximumActiveLoans} active loans, ${type.loanPeriodDays} days|">Standard</option>
+                                th:text="|${#messages.msg('membership.' + type.name())} — ${type.maximumActiveLoans} ${#messages.msg('members.activeLoans')}, ${type.loanPeriodDays} ${#messages.msg('members.days')}|">Standard</option>
                     </select>
-                    <span class="status" th:text="${member.enabled ? 'ENABLED' : 'DISABLED'}">ENABLED</span>
-                    <label><input style="width:auto" type="checkbox" name="enabled" value="true" th:checked="${member.enabled}"> Account enabled</label>
-                    <button class="button primary" type="submit">Save</button></form></td>
+                    <span class="status" th:text="${member.enabled ? #messages.msg('common.enabled') : #messages.msg('common.disabled')}">ENABLED</span>
+                    <label><input style="width:auto" type="checkbox" name="enabled" value="true" th:checked="${member.enabled}"> <span th:text="#{members.accountEnabled}">Account enabled</span></label>
+                    <button class="button primary" type="submit" th:text="#{members.save}">Save</button></form></td>
             </tr></tbody>
         </table>
     </section>
-    <div class="empty-state" th:if="${#lists.isEmpty(members)}"><h2>No member accounts</h2><p class="muted">Registered members will appear here.</p></div>
+    <div class="empty-state" th:if="${#lists.isEmpty(members)}"><h2 th:text="#{members.emptyTitle}">No member accounts</h2><p class="muted" th:text="#{members.emptyText}">Registered members will appear here.</p></div>
 </main>
 </body>
 </html>

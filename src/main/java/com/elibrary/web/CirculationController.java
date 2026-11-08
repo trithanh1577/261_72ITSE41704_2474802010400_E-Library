@@ -20,9 +20,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CirculationController {
 
     private final CirculationService circulationService;
+    private final UiMessages messages;
 
-    public CirculationController(CirculationService circulationService) {
+    public CirculationController(CirculationService circulationService, UiMessages messages) {
         this.circulationService = circulationService;
+        this.messages = messages;
     }
 
     @PostMapping("/books/{bookId}/requests")
@@ -32,14 +34,14 @@ public class CirculationController {
                                 Authentication authentication,
                                 RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("error", "The request note must be at most 500 characters.");
+            redirectAttributes.addFlashAttribute("error", messages.get("uiError.requestNoteTooLong"));
             return "redirect:/books/" + bookId;
         }
         try {
             circulationService.submitRequest(authentication.getName(), bookId, form.getNote());
-            redirectAttributes.addFlashAttribute("success", "Borrowing request submitted for librarian review.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.requestSubmitted"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/books/" + bookId;
     }
@@ -49,9 +51,9 @@ public class CirculationController {
                           RedirectAttributes redirectAttributes) {
         try {
             circulationService.submitReservation(authentication.getName(), bookId);
-            redirectAttributes.addFlashAttribute("success", "Reservation added to the queue.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.reservationAdded"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/books/" + bookId;
     }
@@ -67,9 +69,9 @@ public class CirculationController {
                                    RedirectAttributes redirectAttributes) {
         try {
             circulationService.claimReservation(id, authentication.getName());
-            redirectAttributes.addFlashAttribute("success", "Reserved copy checked out successfully.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.reservedCopyBorrowed"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/mine";
     }
@@ -79,9 +81,9 @@ public class CirculationController {
                                     RedirectAttributes redirectAttributes) {
         try {
             circulationService.cancelReservation(id, authentication.getName());
-            redirectAttributes.addFlashAttribute("success", "Reservation cancelled.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.reservationCancelled"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/mine";
     }
@@ -96,9 +98,9 @@ public class CirculationController {
     public String approve(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             circulationService.approveRequest(id);
-            redirectAttributes.addFlashAttribute("success", "Request approved and loan created.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.requestApproved"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/requests";
     }
@@ -109,9 +111,9 @@ public class CirculationController {
                          RedirectAttributes redirectAttributes) {
         try {
             circulationService.rejectRequest(id, reason);
-            redirectAttributes.addFlashAttribute("success", "Request rejected.");
+            redirectAttributes.addFlashAttribute("success", messages.get("circulation.requestRejected"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/requests";
     }
@@ -139,11 +141,12 @@ public class CirculationController {
                              RedirectAttributes redirectAttributes) {
         try {
             var settlement = circulationService.settleFine(id, type, note, authentication.getName());
-            String action = type == FineSettlementType.PAID ? "Payment recorded" : "Fine waived";
-            redirectAttributes.addFlashAttribute("success", action + ": VND "
-                    + settlement.getAmount().toPlainString());
+            String messageCode = type == FineSettlementType.PAID
+                    ? "circulation.paymentRecorded" : "circulation.fineWaived";
+            redirectAttributes.addFlashAttribute("success",
+                    messages.get(messageCode, settlement.getAmount().toPlainString()));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/loans";
     }
@@ -162,10 +165,10 @@ public class CirculationController {
     public String returnLoan(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             var loan = circulationService.returnLoan(id);
-            redirectAttributes.addFlashAttribute("success", "Book returned. Fine recorded: VND "
-                    + loan.getFineAmount().toPlainString());
+            redirectAttributes.addFlashAttribute("success",
+                    messages.get("circulation.bookReturned", loan.getFineAmount().toPlainString()));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/circulation/loans";
     }

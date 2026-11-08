@@ -15,9 +15,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class MemberController {
 
     private final MemberManagementService memberService;
+    private final UiMessages messages;
 
-    public MemberController(MemberManagementService memberService) {
+    public MemberController(MemberManagementService memberService, UiMessages messages) {
         this.memberService = memberService;
+        this.messages = messages;
     }
 
     @GetMapping("/members")
@@ -35,9 +37,9 @@ public class MemberController {
                          RedirectAttributes redirectAttributes) {
         try {
             memberService.updateMember(id, displayName, membershipType, enabled);
-            redirectAttributes.addFlashAttribute("success", "Member account updated.");
+            redirectAttributes.addFlashAttribute("success", messages.get("member.updated"));
         } catch (IllegalArgumentException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            redirectAttributes.addFlashAttribute("error", messages.fromService(exception.getMessage()));
         }
         return "redirect:/members";
     }

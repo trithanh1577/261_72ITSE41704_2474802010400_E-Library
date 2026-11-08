@@ -1,7 +1,8 @@
 # Week 6 use cases
 
-These cases extend the Week 5 catalogue slice with circulation, reservation
-and member account workflows.
+These cases record the circulation slice introduced at the Week 6 checkpoint.
+Reservation and member-account expansion arrived in Week 7 and is documented
+in [`use-cases-week7.md`](use-cases-week7.md).
 
 ## UC-04 Submit a borrowing request
 
@@ -54,46 +55,8 @@ Service-level automated tests cover the main eligibility and fine rules. The
 browser and configured-MySQL flows in `test-cases-week6.md` have not yet been
 run and are still marked pending.
 
-## UC-08 Reserve an unavailable title
+## Scope boundary
 
-- **Actor:** Library Member
-- **Precondition:** The member is signed in, eligible to borrow and no physical
-  copy is available.
-- **Main flow:** The member joins the title's FIFO queue. When a copy is
-  returned, the earliest waiting reservation receives it and has 48 hours to
-  claim it. Claiming creates a loan under the member's loan limit and period.
-- **Alternative flow:** A member cannot create a duplicate active reservation.
-  The member can cancel a waiting or ready reservation. If the 48-hour window
-  expires, the copy is offered to the next waiting member.
-- **Related requirements:** FR-15, FR-16, FR-17, FR-18.
-
-## UC-09 Manage member accounts and membership
-
-- **Actor:** Librarian
-- **Precondition:** The librarian is signed in.
-- **Main flow:** The librarian edits a member's display name, membership type
-  or enabled status. This page cannot promote a member to librarian.
-- **Membership rules:** Standard members may hold five active loans for 14
-  days, Student members three for 21 days, and Premium members eight for 21
-  days.
-- **Related requirements:** FR-06.
-
-## Circulation rule notes
-
-- Late fines are VND 5,000 per chargeable day and capped at VND 100,000 per
-  loan. Dates in `LIBRARY_HOLIDAYS` are excluded from chargeable days.
-- `LIBRARY_HOLIDAYS` is a comma-separated list of ISO dates (`yyyy-MM-dd`).
-- Reservation expiry is processed by circulation actions and a scheduled task
-  that checks every minute.
-
-## UC-10 Claim or cancel a reservation
-
-- **Actor:** Library Member
-- **Precondition:** The member has an active `WAITING` or `READY` reservation.
-- **Main flow:** The member cancels their own waiting/ready reservation or
-  claims a ready copy before its 48-hour deadline. Claiming creates a loan
-  using their membership limit and loan period.
-- **Alternative flow:** A member cannot cancel or claim another member's
-  reservation. A non-ready, expired or already completed reservation is
-  rejected.
-- **Related requirements:** FR-15, FR-16, FR-17, FR-18.
+This checkpoint did not yet include reservation queues, member profile
+management, fine settlement or circulation reporting. Those later workflows
+are documented under Week 7 and Week 8.

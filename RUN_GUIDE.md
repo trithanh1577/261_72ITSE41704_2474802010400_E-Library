@@ -13,6 +13,21 @@ java -version
 mvn -version
 ```
 
+If PowerShell says `mvn` is not recognized, install Maven on Windows:
+
+1. Download the binary ZIP from the [Apache Maven installation page](https://maven.apache.org/install.html).
+2. Extract it to a stable folder outside the project, for example
+   `C:\tools\apache-maven-3.9.x`.
+3. Add that folder's `bin` directory (for example,
+   `C:\tools\apache-maven-3.9.x\bin`) to the Windows user `Path` environment
+   variable.
+4. Close and reopen VS Code so its terminal reloads `Path`, then run
+   `mvn -version` again.
+
+The first Maven build may need an internet connection to download dependencies.
+See the official [Windows prerequisites](https://maven.apache.org/guides/getting-started/windows-prerequisites.html)
+if Java or Maven is still not recognized.
+
 ## 2. Create the local database
 
 Run this once in MySQL:
@@ -33,17 +48,21 @@ $env:DB_PASSWORD = "your-local-password"
 Alternatively, run the application and MySQL together with Docker Compose:
 
 ```powershell
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 docker compose up --build
 ```
 
-Open `http://localhost:8080`. Stop the containers with `docker compose down`;
-the named MySQL volume remains and keeps records for the next start. Use
+Open `http://localhost:8080`. The application container appears as `e-library`
+in Docker Desktop. Stop the containers with `docker compose down`; the named
+MySQL volume remains and keeps records for the next start. Use
 `docker compose down --volumes` only when you intend to delete that local
 database. The example passwords are for local coursework only. Docker Compose
-could not be runtime-verified in the current environment because its Docker
-daemon is unavailable; continue with the direct MySQL or H2 instructions below
-when Docker Desktop is not running.
+was verified with the application and MySQL services running; see the local
+acceptance notes for the persistence restart check.
+
+The root `.dockerignore` excludes local `data/`, `.tools/`, `.env` files,
+generated output and IDE files from the image build context. It does not delete
+the local H2 database or the Compose MySQL volume.
 
 Do not put a real password in a committed file. The demo accounts are seeded
 for local coursework only: `admin` / `admin123` (Librarian) and `member` /
@@ -58,15 +77,28 @@ mvn test
 mvn spring-boot:run
 ```
 
-If Maven reports that `com.elibrary` packages cannot be found while compiling
-tests from this Vietnamese-named Windows folder, try a temporary drive mapping:
+If Maven fails from a Windows project path containing Vietnamese characters or
+spaces—for example, the launcher reports `Access is denied` or cannot find
+`org.codehaus.plexus.classworlds.launcher.Launcher`, or the compiler cannot
+resolve `com.elibrary` packages—try a temporary drive mapping. Check that `Z:`
+is unused first:
 
 ```powershell
+if (Get-PSDrive Z -ErrorAction SilentlyContinue) { throw 'Z: is already in use' }
 $repoPath = (Get-Location).Path
 subst Z: $repoPath
-Set-Location Z:\
-mvn test
+try {
+    Set-Location Z:\
+    mvn test
+} finally {
+    Set-Location $repoPath
+    subst Z: /D
+}
 ```
+
+Run `mvn spring-boot:run` from `Z:\` in the same way if the launcher error
+occurs when starting the app. The example above removes the mapping after the
+Maven command exits.
 
 Open `http://localhost:8080`. The local app uses the configured MySQL database.
 For a public hosted version, follow
@@ -87,7 +119,7 @@ The `data/` folder is ignored by Git, so its local database is not pushed. Use
 MySQL for the standard course setup and record which database was used during
 manual checks; the H2 profile is only a local fallback.
 
-## 4. Week 5–9 smoke checks
+## 4. Manual application checks
 
 1. Sign in as `admin`, search for a title, open its details and add a copy.
 2. Sign in as `member`; confirm catalogue access works but librarian book and
@@ -118,26 +150,25 @@ manual checks; the H2 profile is only a local fallback.
     a recovery page rather than a stack trace.
 14. As the librarian, open **Circulation report** and compare the most-borrowed
     titles and counts with loans recorded in the test database.
+15. Use the `EN` / `VI` control from the catalogue, sign-in and registration
+    pages. Confirm the visible labels change, the current search/filter query is
+    kept, and the chosen language remains active after opening another page.
 
-Record the observed outcome and date in the Week 5–9 test tables. Automated
-integration tests do not count as manual browser acceptance; leave those rows
-pending until the team runs them.
+Record the date, browser, observed outcome and evidence in
+[`docs/week9-acceptance.md`](docs/week9-acceptance.md). Use the Week 5–9 test
+case tables for the corresponding case IDs. Automated integration tests do not
+count as manual browser acceptance; leave a checklist item pending until the
+team performs it in a browser.
 
 For fine calculation, `LIBRARY_HOLIDAYS` is optional and accepts comma-
 separated dates in `yyyy-MM-dd` format. Membership limits are Standard (5
 active loans, 14 days), Student (3, 21 days), and Premium (8, 21 days).
 
-## 5. Current Git handoff
+## 5. Git workflow and deployment
 
-The current local branch is `feature/week-7-reservations`; it contains Week 6–8
-work plus later verification updates. The working tree is uncommitted and has
-not been pushed or deployed. Local tags `v0.1` and `v0.2` point to the Week 5
-and Week 7 commits; `v1.0` awaits final acceptance and team review.
-Review the working tree and test results before a release commit. The team's
-handoff says Ngan3112 performs GitHub pushes; each student should commit their
-own work under their own identity to preserve course contribution evidence.
-Use a reviewed pull request to merge a feature branch into `main`.
-
-Do not include `.tools/`, `target/`, IDE state, database dumps or credentials.
-A push does not itself deploy the service; check Render's watched branch and
-deployment result separately.
+1. Create a feature branch for a change and commit the finished work.
+2. Push the branch and open a pull request into `main`.
+3. Have the other member review it, then merge the pull request.
+4. Set the Render service to deploy from `main` and enable automatic deploys.
+   After merging, confirm that the deployment reports **Live**.
+5. Open the website and check sign-in and the main workflow after deployment.

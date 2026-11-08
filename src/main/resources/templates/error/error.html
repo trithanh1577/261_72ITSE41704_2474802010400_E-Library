@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -8,7 +8,7 @@
         <p class="eyebrow" th:text="${status}">400</p>
         <h1 th:text="${title}">Request could not be completed</h1>
         <p class="muted" th:text="${message}">Please check the request and try again.</p>
-        <a class="button primary" th:href="@{/books}">Return to catalogue</a>
+        <a class="button primary" th:href="@{/books}" th:text="#{common.returnCatalogue}">Return to catalogue</a>
     </section>
 </main>
 </body>

@@ -1,6 +1,8 @@
 package com.elibrary.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -8,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.elibrary.domain.Book;
 import com.elibrary.domain.BookCopy;
+import com.elibrary.domain.BorrowRequest;
 import com.elibrary.domain.BorrowRequestStatus;
 import com.elibrary.domain.CopyStatus;
 import com.elibrary.domain.Loan;
@@ -23,6 +26,8 @@ import com.elibrary.repository.LoanRepository;
 import com.elibrary.repository.ReservationRepository;
 import com.elibrary.repository.UserAccountRepository;
 import com.elibrary.service.CirculationService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -39,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,10 +61,11 @@ class CoreUseCaseIntegrationTest {
     @Autowired private BookRepository bookRepository;
     @Autowired private BookCopyRepository copyRepository;
     @Autowired private BorrowRequestRepository requestRepository;
-    @Autowired private ReservationRepository reservationRepository;
+    @SpyBean private ReservationRepository reservationRepository;
     @Autowired private LoanRepository loanRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private CirculationService circulationService;
+    @PersistenceContext private EntityManager entityManager;
 
     @Test
     void concurrentDuplicateBorrowRequestsCreateOnlyOnePendingRequest() throws Exception {
@@ -134,8 +141,8 @@ class CoreUseCaseIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(book.getTitle())));
         mockMvc.perform(get("/books/{id}", book.getId()).session(memberSession.session()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString(
-                        "<strong>1</strong> available copy/copies")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>1</strong>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("available copy")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("COPY-" + suffix)));
         assertThat(copyRepository.countByBookIdAndStatus(book.getId(), CopyStatus.AVAILABLE)).isEqualTo(1);
     }
@@ -175,6 +182,81 @@ class CoreUseCaseIntegrationTest {
                         "reservation workflow")));
         assertThat(copyRepository.findById(copy.getId()).orElseThrow().getStatus())
                 .isEqualTo(CopyStatus.RESERVED);
+    }
+
+    @Test
+    void memberCannotReserveTitleWhileAnAvailableCopyExists() throws Exception {
+        UserAccount member = createMember("available-copy-reader");
+        Book book = createBook("Available Copy Reservation Check");
+        BookCopy copy = copyRepository.save(new BookCopy("COPY-" + suffix(), book));
+        TestSession memberSession = signIn(member.getUsername(), TEST_PASSWORD);
+
+        mockMvc.perform(post("/books/{bookId}/reservations", book.getId())
+                        .session(memberSession.session())
+                        .param("_csrf", memberSession.csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        assertThat(reservationRepository.findByMemberUsernameOrderByReservedAtDesc(member.getUsername()))
+                .isEmpty();
+        assertThat(copyRepository.findById(copy.getId()).orElseThrow().getStatus())
+                .isEqualTo(CopyStatus.AVAILABLE);
+    }
+
+    @Test
+    void librarianCannotIssueCopyHeldForAnotherMembersReadyReservation() throws Exception {
+        UserAccount reservationHolder = createMember("reservation-holder");
+        UserAccount requestingMember = createMember("reservation-bypass-reader");
+        Book book = createBook("Reserved Copy Issue Check");
+        BookCopy copy = new BookCopy("COPY-" + suffix(), book);
+        copy.setStatus(CopyStatus.RESERVED);
+        copy = copyRepository.save(copy);
+        Reservation reservation = new Reservation(reservationHolder, book, LocalDateTime.now().minusMinutes(1));
+        reservation.markReady(copy, LocalDateTime.now().plusHours(47));
+        reservationRepository.save(reservation);
+        BorrowRequest request = requestRepository.save(new BorrowRequest(
+                requestingMember, book, LocalDateTime.now(), null));
+        TestSession librarian = signIn("admin", "admin123");
+
+        mockMvc.perform(post("/circulation/requests/{id}/approve", request.getId())
+                        .session(librarian.session())
+                        .param("_csrf", librarian.csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        assertThat(requestRepository.findById(request.getId()).orElseThrow().getStatus())
+                .isEqualTo(BorrowRequestStatus.PENDING);
+        assertThat(reservationRepository.findById(reservation.getId()).orElseThrow().getStatus())
+                .isEqualTo(ReservationStatus.READY);
+        assertThat(copyRepository.findById(copy.getId()).orElseThrow().getStatus())
+                .isEqualTo(CopyStatus.RESERVED);
+        assertThat(loanRepository.countByMemberIdAndReturnedAtIsNull(requestingMember.getId())).isZero();
+    }
+
+    @Test
+    void returnRollsBackLoanAndCopyWhenReservationQueueDispatchFails() {
+        UserAccount member = createMember("rollback-reader");
+        Book book = createBook("Return Rollback Check");
+        BookCopy copy = new BookCopy("COPY-" + suffix(), book);
+        copy.setStatus(CopyStatus.ON_LOAN);
+        copy = copyRepository.save(copy);
+        Loan loan = loanRepository.save(new Loan(member, copy, null,
+                LocalDateTime.now().minusDays(3), LocalDate.now().minusDays(1)));
+
+        doAnswer(invocation -> {
+                    entityManager.flush();
+                    throw new IllegalStateException("Simulated reservation dispatch failure");
+                })
+                .when(reservationRepository)
+                .findWaitingForUpdate(book.getId(), ReservationStatus.WAITING);
+
+        assertThatThrownBy(() -> circulationService.returnLoan(loan.getId()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Simulated reservation dispatch failure");
+
+        Loan persistedLoan = loanRepository.findById(loan.getId()).orElseThrow();
+        assertThat(persistedLoan.getReturnedAt()).isNull();
+        assertThat(persistedLoan.getFineAmount()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(copyRepository.findById(copy.getId()).orElseThrow().getStatus())
+                .isEqualTo(CopyStatus.ON_LOAN);
     }
 
     @Test
@@ -225,7 +307,7 @@ class CoreUseCaseIntegrationTest {
         mockMvc.perform(get("/circulation/mine").session(memberSession.session()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Cancellation Journey")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("READY")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ready for collection")));
         mockMvc.perform(post("/reservations/{id}/cancel", reservation.getId())
                         .session(memberSession.session())
                         .param("_csrf", memberSession.csrf()))
@@ -237,7 +319,7 @@ class CoreUseCaseIntegrationTest {
                 .isEqualTo(CopyStatus.AVAILABLE);
         mockMvc.perform(get("/circulation/mine").session(memberSession.session()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("CANCELLED")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Cancelled")));
     }
 
     @Test

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Loans')}"></head>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{loans.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
 <main class="container page-content">
-    <div class="page-heading"><div><p class="eyebrow">LIBRARIAN</p><h1>Circulation report</h1><p class="muted">Search loan history by member, book, copy or status.</p></div></div>
+    <div class="page-heading"><div><p class="eyebrow" th:text="#{bookForm.eyebrow}">LIBRARIAN</p><h1 th:text="#{loans.heading}">Circulation report</h1><p class="muted" th:text="#{loans.description}">Search loan history by member, book, copy or status.</p></div></div>
     <div class="alert success" th:if="${success}" th:text="${success}"></div>
     <div class="alert danger" th:if="${error}" th:text="${error}"></div>
     <section class="panel" aria-labelledby="popular-titles-heading">
-        <h2 id="popular-titles-heading">Most borrowed titles</h2>
-        <p class="muted" th:if="${#lists.isEmpty(popularBooks)}">No borrowing history is available yet.</p>
+        <h2 id="popular-titles-heading" th:text="#{loans.popular}">Most borrowed titles</h2>
+        <p class="muted" th:if="${#lists.isEmpty(popularBooks)}" th:text="#{loans.noHistory}">No borrowing history is available yet.</p>
         <table class="data-table" th:if="${!#lists.isEmpty(popularBooks)}">
-            <thead><tr><th>Title</th><th>Author</th><th>Loans</th></tr></thead>
+            <thead><tr><th th:text="#{bookForm.titleLabel}">Title</th><th th:text="#{common.author}">Author</th><th th:text="#{loans.count}">Loans</th></tr></thead>
             <tbody><tr th:each="item : ${popularBooks}">
                 <td th:text="${item.title}">Title</td>
                 <td th:text="${item.author}">Author</td>
@@ -20,55 +20,55 @@
         </table>
     </section>
     <form class="panel filter-form" th:action="@{/circulation/loans}" method="get">
-        <label for="query">Member, book, ISBN or copy code</label>
+        <label for="query" th:text="#{loans.query}">Member, book, ISBN or copy code</label>
         <input id="query" name="query" type="search" maxlength="120" th:value="${query}">
-        <label for="status">Loan status</label>
+        <label for="status" th:text="#{loans.status}">Loan status</label>
         <select id="status" name="status">
-            <option value="ALL" th:selected="${selectedStatus == 'ALL'}">All</option>
-            <option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}">Active</option>
-            <option value="OVERDUE" th:selected="${selectedStatus == 'OVERDUE'}">Overdue</option>
-            <option value="RETURNED" th:selected="${selectedStatus == 'RETURNED'}">Returned</option>
+            <option value="ALL" th:selected="${selectedStatus == 'ALL'}" th:text="#{loans.all}">All</option>
+            <option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}" th:text="#{common.active}">Active</option>
+            <option value="OVERDUE" th:selected="${selectedStatus == 'OVERDUE'}" th:text="#{common.overdue}">Overdue</option>
+            <option value="RETURNED" th:selected="${selectedStatus == 'RETURNED'}" th:text="#{common.returned}">Returned</option>
         </select>
-        <button class="button primary" type="submit">Apply filters</button>
+        <button class="button primary" type="submit" th:text="#{loans.apply}">Apply filters</button>
     </form>
     <section class="panel" th:if="${!#lists.isEmpty(loans)}">
-        <table class="data-table"><thead><tr><th>Member</th><th>Book / copy</th><th>Issued</th><th>Due</th><th>Returned</th><th>Fine balance</th><th>History / action</th></tr></thead>
+        <table class="data-table"><thead><tr><th th:text="#{common.member}">Member</th><th th:text="|#{common.book} / #{common.copy}|">Book / copy</th><th th:text="#{loans.issued}">Issued</th><th th:text="#{loans.due}">Due</th><th th:text="#{loans.returned}">Returned</th><th th:text="#{loans.fineBalance}">Fine balance</th><th th:text="#{loans.historyAction}">History / action</th></tr></thead>
             <tbody><tr th:each="loan : ${loans}">
                 <td th:text="${loan.member.displayName}">Member</td>
                 <td><span th:text="${loan.copy.book.title}">Book</span><br><span class="muted small-text" th:text="${loan.copy.copyCode}">Copy</span></td>
                 <td th:text="${#temporals.format(loan.issuedAt, 'yyyy-MM-dd')}">Issued</td>
                 <td th:text="${loan.dueDate}">Due</td>
-                <td th:text="${loan.returnedAt == null ? 'Active' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td>
-                <td><span th:text="|VND ${loan.outstandingFineAmount}|">VND 0</span><br><span class="muted small-text" th:if="${loan.settledFineAmount.signum() > 0}" th:text="|Settled: VND ${loan.settledFineAmount}|">Settled</span></td>
+                <td th:text="${loan.returnedAt == null ? #messages.msg('common.active') : #temporals.format(loan.returnedAt, 'yyyy-MM-dd')}">Active</td>
+                <td><span th:text="|VND ${loan.outstandingFineAmount}|">VND 0</span><br><span class="muted small-text" th:if="${loan.settledFineAmount.signum() > 0}" th:text="#{loans.settled(${loan.settledFineAmount})}">Settled</span></td>
                 <td>
-                    <form th:if="${loan.active}" th:action="@{/circulation/loans/{id}/return(id=${loan.id})}" method="post"><button class="button secondary" type="submit">Record return</button></form>
+                    <form th:if="${loan.active}" th:action="@{/circulation/loans/{id}/return(id=${loan.id})}" method="post"><button class="button secondary" type="submit" th:text="#{loans.recordReturn}">Record return</button></form>
                     <details th:if="${loan.hasOutstandingFine()}">
-                        <summary>Record payment or waiver</summary>
+                        <summary th:text="#{loans.recordPayment}">Record payment or waiver</summary>
                         <div class="fine-history" th:each="settlement : ${loan.fineSettlements}">
-                            <span th:text="|${settlement.type}: VND ${settlement.amount} — ${settlement.note} (${settlement.processedBy})|">Settlement</span>
+                            <span th:text="|${#messages.msg('status.' + settlement.type.name())}: VND ${settlement.amount} — ${settlement.note} (${settlement.processedBy})|">Settlement</span>
                         </div>
                         <form th:action="@{/circulation/loans/{id}/fine-settlements(id=${loan.id})}" method="post" class="stack-form">
-                            <label th:for="|fine-type-${loan.id}|">Action</label>
+                            <label th:for="|fine-type-${loan.id}|" th:text="#{loans.fineAction}">Action</label>
                             <select th:id="|fine-type-${loan.id}|" name="type" required>
-                                <option value="PAID">Paid</option><option value="WAIVED">Waived</option>
+                                <option value="PAID" th:text="#{status.PAID}">Paid</option><option value="WAIVED" th:text="#{status.WAIVED}">Waived</option>
                             </select>
-                            <label th:for="|fine-note-${loan.id}|">Note</label>
+                            <label th:for="|fine-note-${loan.id}|" th:text="#{loans.note}">Note</label>
                             <input th:id="|fine-note-${loan.id}|" name="note" maxlength="500" required>
-                            <button class="button secondary" type="submit">Save fine record</button>
+                            <button class="button secondary" type="submit" th:text="#{loans.saveFine}">Save fine record</button>
                         </form>
                     </details>
                     <div class="fine-history" th:if="${!loan.hasOutstandingFine() and !#lists.isEmpty(loan.fineSettlements)}">
-                        <div th:each="settlement : ${loan.fineSettlements}" th:text="|${settlement.type}: VND ${settlement.amount} — ${settlement.note} (${settlement.processedBy})|">Settlement</div>
+                        <div th:each="settlement : ${loan.fineSettlements}" th:text="|${#messages.msg('status.' + settlement.type.name())}: VND ${settlement.amount} — ${settlement.note} (${settlement.processedBy})|">Settlement</div>
                     </div>
                 </td>
             </tr></tbody>
         </table>
     </section>
-    <div class="empty-state" th:if="${#lists.isEmpty(loans)}"><h2>No matching loans</h2><p class="muted">Try another search term or status.</p></div>
-    <nav class="pagination" aria-label="Loan report pages" th:if="${loanPage.totalPages > 1}">
-        <a class="button quiet" th:if="${loanPage.hasPrevious()}" th:href="@{/circulation/loans(query=${query},status=${selectedStatus},page=${loanPage.number - 1})}">Previous</a>
-        <span th:text="|Page ${loanPage.number + 1} of ${loanPage.totalPages}|">Page 1</span>
-        <a class="button quiet" th:if="${loanPage.hasNext()}" th:href="@{/circulation/loans(query=${query},status=${selectedStatus},page=${loanPage.number + 1})}">Next</a>
+    <div class="empty-state" th:if="${#lists.isEmpty(loans)}"><h2 th:text="#{loans.noMatching}">No matching loans</h2><p class="muted" th:text="#{loans.tryFilters}">Try another search term or status.</p></div>
+    <nav class="pagination" th:attr="aria-label=#{loans.pages}" th:if="${loanPage.totalPages > 1}">
+        <a class="button quiet" th:if="${loanPage.hasPrevious()}" th:href="@{/circulation/loans(query=${query},status=${selectedStatus},page=${loanPage.number - 1})}" th:text="#{common.previous}">Previous</a>
+        <span th:text="#{common.pageOf(${loanPage.number + 1}, ${loanPage.totalPages})}">Page 1</span>
+        <a class="button quiet" th:if="${loanPage.hasNext()}" th:href="@{/circulation/loans(query=${query},status=${selectedStatus},page=${loanPage.number + 1})}" th:text="#{common.next}">Next</a>
     </nav>
 </main>
 </body>

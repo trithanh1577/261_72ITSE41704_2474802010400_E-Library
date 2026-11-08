@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Catalogue')}"></head>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{catalogue.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
 <main class="container page-content">
     <div class="page-heading">
-        <div><p class="eyebrow">CATALOGUE</p><h1>Find a book</h1><p class="muted">Search active titles by title, author, ISBN or category.</p></div>
-        <a class="button primary" th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/books/new}">Add book</a>
+        <div><p class="eyebrow" th:text="#{catalogue.eyebrow}">CATALOGUE</p><h1 th:text="#{catalogue.title}">Find a book</h1><p class="muted" th:text="#{catalogue.description}">Search active titles by title, author, ISBN or category.</p></div>
+        <a class="button primary" th:if="${#authorization.expression('hasRole(''LIBRARIAN'')')}" th:href="@{/books/new}" th:text="#{catalogue.addBook}">Add book</a>
     </div>
     <div class="alert success" th:if="${success}" th:text="${success}"></div>
     <form class="search-bar" th:action="@{/books}" method="get">
-        <input type="search" name="keyword" th:value="${keyword}" placeholder="Try Java, Martin, ISBN or Software">
-        <button class="button secondary" type="submit">Search</button>
-        <a class="button quiet" th:href="@{/books}">Clear</a>
+        <input type="search" name="keyword" th:value="${keyword}" th:placeholder="#{catalogue.searchPlaceholder}">
+        <button class="button secondary" type="submit" th:text="#{catalogue.search}">Search</button>
+        <a class="button quiet" th:href="@{/books}" th:text="#{catalogue.clear}">Clear</a>
     </form>
-    <div class="empty-state" th:if="${#lists.isEmpty(books)}"><h2>No active books found</h2><p class="muted">Try another search term or ask a librarian to add a title.</p></div>
+    <div class="empty-state" th:if="${#lists.isEmpty(books)}"><h2 th:text="#{catalogue.emptyTitle}">No active books found</h2><p class="muted" th:text="#{catalogue.emptyText}">Try another search term or ask a librarian to add a title.</p></div>
     <div class="book-grid" th:unless="${#lists.isEmpty(books)}">
         <article class="book-card" th:each="book : ${books}">
             <div class="book-cover" th:text="${#strings.substring(book.title, 0, 1).toUpperCase()}">E</div>
-            <div class="book-card-body"><p class="tag" th:text="${book.category}">Category</p><h2><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a></h2><p class="muted" th:text="${book.author}">Author</p><p class="small-text" th:text="|ISBN ${book.isbn}|">ISBN</p></div>
+            <div class="book-card-body"><p class="tag" th:text="${book.category}">Category</p><h2><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a></h2><p class="muted" th:text="${book.author}">Author</p><p class="small-text" th:text="|#{common.isbn} ${book.isbn}|">ISBN</p></div>
         </article>
     </div>
-    <nav class="pagination" aria-label="Catalogue pages" th:if="${bookPage.totalPages > 1}">
-        <a class="button quiet" th:if="${bookPage.hasPrevious()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number - 1})}">Previous</a>
-        <span th:text="|Page ${bookPage.number + 1} of ${bookPage.totalPages}|">Page 1</span>
-        <a class="button quiet" th:if="${bookPage.hasNext()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number + 1})}">Next</a>
+    <nav class="pagination" th:attr="aria-label=#{catalogue.pages}" th:if="${bookPage.totalPages > 1}">
+        <a class="button quiet" th:if="${bookPage.hasPrevious()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number - 1})}" th:text="#{common.previous}">Previous</a>
+        <span th:text="#{common.pageOf(${bookPage.number + 1}, ${bookPage.totalPages})}">Page 1</span>
+        <a class="button quiet" th:if="${bookPage.hasNext()}" th:href="@{/books(keyword=${keyword},page=${bookPage.number + 1})}" th:text="#{common.next}">Next</a>
     </nav>
 </main>
 </body>

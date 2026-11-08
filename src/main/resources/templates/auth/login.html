@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Sign in')}"></head>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{auth.signIn})}"></head>
 <body class="login-page">
 <main class="login-card">
+    <div class="auth-language"><div th:replace="~{fragments/layout :: language-switch}"></div></div>
     <div class="brand-mark">E-Library</div>
-    <p class="muted">Book catalogue and circulation foundation</p>
-    <div class="alert success" th:if="${param.logout}">You have signed out.</div>
-    <div class="alert success" th:if="${param.registered}">Account created. You can sign in now.</div>
-    <div class="alert danger" th:if="${param.error}">Invalid username/email or password.</div>
+    <p class="muted" th:text="#{auth.tagline}">Book catalogue and circulation foundation</p>
+    <div class="alert success" th:if="${param.logout}" th:text="#{auth.signedOut}">You have signed out.</div>
+    <div class="alert success" th:if="${param.registered}" th:text="#{auth.registered}">Account created. You can sign in now.</div>
+    <div class="alert danger" th:if="${param.error}" th:text="#{auth.invalidCredentials}">Invalid username/email or password.</div>
     <form th:action="@{/login}" method="post" class="stack-form">
-        <label for="username">Username or email</label>
+        <label for="username" th:text="#{auth.usernameOrEmail}">Username or email</label>
         <input id="username" name="username" type="text" autocomplete="username" required autofocus>
-        <label for="password">Password</label>
+        <label for="password" th:text="#{auth.password}">Password</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required>
-        <button class="button primary full" type="submit">Sign in</button>
+        <button class="button primary full" type="submit" th:text="#{auth.signIn}">Sign in</button>
     </form>
-    <p class="hint">New to E-Library? <a th:href="@{/register}">Create a member account</a></p>
+    <p class="hint"><span th:text="#{auth.newHere}">New to E-Library?</span> <a th:href="@{/register}" th:text="#{auth.createMember}">Create a member account</a></p>
 </main>
 </body>
 </html>

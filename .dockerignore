@@ -1,0 +1,10 @@
+.git
+.github
+.tools
+target
+data
+.env
+.env.*
+.vscode
+.idea
+*.log
