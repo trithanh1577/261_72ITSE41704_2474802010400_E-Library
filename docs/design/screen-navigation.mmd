@@ -1,0 +1,15 @@
+flowchart LR
+    login["Đăng nhập"]
+    register["Đăng ký Member"]
+    catalogue["Danh mục sách"]
+    login <--> register
+    login --> catalogue
+    guest["Khách"] --> catalogue
+    catalogue --> detail["Chi tiết sách và bản sao"]
+    detail -->|"Member"| request["Gửi yêu cầu hoặc đặt trước"]
+    catalogue -->|"Member"| activity["Hoạt động của tôi"]
+    catalogue -->|"Librarian"| staffMenu["Menu thủ thư"]
+    staffMenu --> circulation["Yêu cầu, lượt mượn và báo cáo"]
+    staffMenu --> management["Đặt trước và thành viên"]
+    catalogue -->|"Librarian"| bookForm["Thêm đầu sách"]
+    detail -->|"Librarian"| editBook["Sửa sách và bản sao"]

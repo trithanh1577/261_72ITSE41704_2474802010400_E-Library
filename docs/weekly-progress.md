@@ -1,11 +1,8 @@
 # Weekly progress summary
 
-This is a retrospective summary of the repository and project artifacts. The
-week headings organize work by course milestone; they do not mean this file was
-written during each week or that every listed activity was independently
-confirmed by both members. Use Git commits, tags, test output and recorded
-acceptance evidence to verify dated work and contributions. Do not use this
-summary as a substitute for the final report's individual contribution table.
+This summary was put together from the repository and test notes. The headings
+follow the course milestones. See Git history and the test notes for dates.
+Use the contribution table in the final report for each member's work.
 
 ## Week 1 - Start with the topic and scope
 

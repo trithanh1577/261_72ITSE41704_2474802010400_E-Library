@@ -2,7 +2,6 @@ package com.elibrary.domain;
 
 import java.time.LocalDate;
 
-/** Immutable circulation terms derived when a member receives a loan. */
 public record LoanTerms(int maximumActiveLoans, int loanPeriodDays) {
 
     public LoanTerms {

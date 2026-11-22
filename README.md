@@ -1,6 +1,6 @@
 # E-Library — Hệ thống quản lý thư viện
 
-Ứng dụng web quản lý danh mục sách và quy trình mượn/trả, thực hiện cho môn **72ITSE41704 – Application Programming Project**, lớp **261_72ITSE41704_01**. Đề tài theo **Topic 6 – E-Library and Resource Circulation System**.
+E-Library là ứng dụng quản lý sách và mượn trả cho thư viện nhỏ. Đây là đề tài số 6 (*E-Library and Resource Circulation System*) của môn **72ITSE41704 – Application Programming Project**, lớp **261_72ITSE41704_01**.
 
 ## Tổng quan
 
@@ -9,7 +9,7 @@ E-Library hỗ trợ hai vai trò:
 - **Member:** tìm sách, xem tình trạng bản sao, đăng ký tài khoản, gửi yêu cầu mượn, đặt trước sách chưa có bản sao khả dụng và xem hoạt động của chính mình.
 - **Librarian:** quản lý sách và bản sao, duyệt yêu cầu mượn, ghi nhận trả sách, quản lý thành viên, xử lý tiền phạt và xem báo cáo lưu thông.
 
-Đăng ký công khai chỉ tạo tài khoản Member. Giao diện có nút chuyển đổi tiếng Anh/tiếng Việt theo yêu cầu bổ sung của nhóm. Tài khoản Librarian không thể được tạo từ biểu mẫu đăng ký thành viên.
+Trang đăng ký chỉ tạo tài khoản Member. Có thể đổi ngôn ngữ giao diện bằng nút **EN / VI**.
 
 ## Thành viên
 
@@ -20,36 +20,135 @@ E-Library hỗ trợ hai vai trò:
 
 ## Use case
 
-Các use case dưới đây được mô tả chi tiết trong thư mục [docs](docs/).
+| ID | Use case | Vai trò | Yêu cầu | Ca kiểm thử liên quan |
+| --- | --- | --- | --- | --- |
+| [UC-01](docs/use-cases-week5.md#uc-01-access-a-library-account) | Đăng ký tài khoản Member; đăng nhập và đăng xuất | Khách đăng ký, Member, Librarian | FR-01, FR-02, FR-06 | TC-01–TC-03, TC-30, TC-66 |
+| [UC-02](docs/use-cases-week5.md#uc-02-manage-books-and-copies) | Thêm, sửa, ngừng lưu thông đầu sách và quản lý bản sao vật lý | Librarian | FR-04, FR-05 | TC-05–TC-08, TC-53, TC-64 |
+| [UC-03](docs/use-cases-week5.md#uc-03-search-books-and-check-availability) | Tìm sách theo tên, tác giả, ISBN hoặc thể loại và xem số bản sao khả dụng | Khách, Member, Librarian | FR-07, FR-08 | TC-09–TC-11, TC-53 |
+| [UC-04](docs/use-cases-week6.md#uc-04-submit-a-borrowing-request) | Gửi yêu cầu mượn đầu sách và theo dõi trạng thái chờ duyệt | Member | FR-09 | TC-16, TC-17, TC-65 |
+| [UC-05](docs/use-cases-week6.md#uc-05-review-a-request-and-issue-a-loan) | Duyệt hoặc từ chối yêu cầu. Duyệt thành công tạo lượt mượn | Librarian | FR-10–FR-12 | TC-18–TC-21, TC-26, TC-27, TC-46, TC-72 |
+| [UC-06](docs/use-cases-week6.md#uc-06-record-a-return) | Ghi nhận trả sách, tính tiền phạt trễ và xử lý bản sao trả về | Librarian | FR-13, FR-14 | TC-22–TC-24, TC-46 |
+| [UC-07](docs/use-cases-week6.md#uc-07-view-own-requests-and-loans) | Xem yêu cầu mượn, lượt mượn, lịch sử, đặt trước và tiền phạt của mình | Member | FR-18 | TC-46, TC-47, TC-55, TC-75 |
+| [UC-08](docs/use-cases-week7.md#uc-08-reserve-an-unavailable-title) | Xếp hàng đặt trước đầu sách chưa có bản sao khả dụng | Member | FR-15–FR-17 | TC-31, TC-33, TC-47, TC-71 |
+| [UC-09](docs/use-cases-week7.md#uc-09-manage-member-accounts-and-membership) | Xem và cập nhật tên hiển thị, hạng và trạng thái tài khoản Member | Librarian | FR-03, FR-06 | TC-43, TC-45, TC-54 |
+| [UC-10](docs/use-cases-week7.md#uc-10-claim-or-cancel-a-reservation) | Nhận bản sao đang được giữ hoặc hủy đặt trước của mình | Member | FR-15, FR-17 | TC-32, TC-47, TC-55 |
+| [UC-11](docs/use-cases-week7.md#uc-11-review-circulation-history-and-settle-a-fine) | Lọc lịch sử lưu thông và ghi nhận thanh toán hoặc miễn phạt | Librarian | FR-19 | TC-34–TC-36, TC-48, TC-51 |
+| [UC-12](docs/use-cases-week8.md#uc-12-view-title-popularity-report) | Xem 5 đầu sách được mượn nhiều nhất theo số lượt mượn đã ghi nhận | Librarian | FR-20 | TC-58, TC-59 |
 
-| ID | Use case | Vai trò chính |
-| --- | --- | --- |
-| UC-01 | Đăng ký, đăng nhập và đăng xuất tài khoản | Member, Librarian |
-| UC-02 | Quản lý đầu sách và bản sao vật lý | Librarian |
-| UC-03 | Tìm sách và xem tình trạng bản sao | Member, Librarian |
-| UC-04 | Gửi yêu cầu mượn sách | Member |
-| UC-05 | Duyệt yêu cầu và lập lượt mượn | Librarian |
-| UC-06 | Ghi nhận trả sách và tính tiền phạt | Librarian |
-| UC-07 | Xem yêu cầu, lượt mượn và lịch sử của mình | Member |
-| UC-08 | Đặt trước đầu sách chưa có bản sao khả dụng | Member |
-| UC-09 | Cập nhật thông tin và hạng thành viên | Librarian |
-| UC-10 | Nhận sách đặt trước hoặc hủy yêu cầu đặt trước | Member |
-| UC-11 | Lọc lịch sử lưu thông và ghi nhận thanh toán/miễn phạt | Librarian |
-| UC-12 | Xem báo cáo đầu sách được mượn nhiều | Librarian |
+**Giới hạn của UC-04.** Nút gửi yêu cầu chỉ hiện khi còn bản sao khả dụng. Lúc gửi, máy chủ kiểm tra tài khoản, trạng thái đầu sách và yêu cầu trùng. Hạn mức, lượt quá hạn và số bản sao còn lại được kiểm tra ở bước duyệt (UC-05), nên FR-09 mới đáp ứng một phần. Xem các ca kiểm thử theo mã TC trong [docs](docs/).
 
 ## Business rules
 
-| ID | Quy tắc nghiệp vụ |
+| ID | Quy tắc nghiệp vụ | Use case | Ca kiểm thử liên quan |
+| --- | --- | --- | --- |
+| BR-01 | Hạng thành viên quy định số lượt đang mượn tối đa và thời hạn của mỗi lượt. Standard (5 lượt, 14 ngày), Student (3 lượt, 21 ngày), Premium (8 lượt, 21 ngày). | UC-05, UC-10 | TC-18, TC-20, TC-50 |
+| BR-02 | Chỉ Member đang hoạt động, còn hạn mức và không có lượt mượn đang quá hạn mới được cấp sách. Mỗi bản sao chỉ phục vụ một lượt mượn đang mở. | UC-05, UC-08, UC-10 | TC-19, TC-21, TC-49 |
+| BR-03 | Mỗi ngày trễ tính 5.000 VND, từ ngày sau hạn trả đến hết ngày trả sách. Bỏ qua ngày nghỉ trong `LIBRARY_HOLIDAYS`. Mức phạt tối đa là 100.000 VND cho một lượt mượn. | UC-06 | TC-22, TC-23, `FinePolicyTest` |
+| BR-04 | Thành viên được đặt trước khi hết bản sao khả dụng. Bản sao được giữ 48 giờ (`RESERVED`) cho người đủ điều kiện theo thứ tự đặt trước (FIFO). Nếu giữ chỗ hết hạn hoặc bị hủy, bản sao chuyển cho người đủ điều kiện tiếp theo nếu có. | UC-05, UC-06, UC-08, UC-10 | TC-33, TC-47, TC-52, TC-55, TC-64, TC-71, TC-72 |
+| BR-05 | Một Member chỉ được có một đặt trước đang hoạt động (`WAITING` hoặc `READY`) cho cùng một đầu sách. | UC-08 | TC-31 |
+
+[Các lớp nghiệp vụ](src/main/java/com/elibrary/domain/) giữ quy tắc về hạn mức, tiền phạt và hàng đợi. [CirculationService](src/main/java/com/elibrary/service/CirculationService.java) áp dụng chúng khi duyệt mượn, trả sách và xử lý đặt trước.
+
+## Thiết kế và triển khai
+
+### 3.2.1 – Functional Analysis
+
+Sơ đồ phân rã chia 12 use case của E-Library thành sáu nhóm chức năng.
+
+![Sơ đồ phân rã chức năng của E-Library](docs/design/figures/functional-decomposition.svg)
+
+<details>
+<summary>Sơ đồ use case và sơ đồ lớp</summary>
+
+![Sơ đồ use case của Librarian, Member và khách đăng ký](docs/design/figures/use-case-diagram.svg)
+
+![Sơ đồ lớp E-Library](docs/design/figures/class-diagram.svg)
+
+</details>
+
+### 3.2.2 – Data Flow Analysis
+
+Member gửi yêu cầu mượn, Librarian duyệt hoặc từ chối. Khi trả sách, hệ thống ghi ngày trả và tiền phạt, rồi xét cấp bản sao cho người đang chờ nếu có.
+
+![DFD luồng gửi yêu cầu, duyệt mượn và trả sách](docs/design/figures/circulation-data-flow.svg)
+
+<details>
+<summary>Sơ đồ tuần tự tìm sách và lưu thông</summary>
+
+![Sơ đồ tuần tự tìm sách](docs/design/figures/sequence-catalogue.svg)
+
+![Sơ đồ tuần tự lưu thông](docs/design/figures/sequence-circulation.svg)
+
+</details>
+
+### 3.2.3 – Database Design
+
+![ERD và quan hệ giữa các bảng của E-Library](docs/design/figures/erd.svg)
+
+| Bảng | Dữ liệu chính |
 | --- | --- |
-| BR-01 | Hạng Standard được mượn tối đa 5 sách trong 14 ngày; Student tối đa 3 sách trong 21 ngày; Premium tối đa 8 sách trong 21 ngày. |
-| BR-02 | Chỉ tài khoản Member đang hoạt động, không có lượt mượn quá hạn và còn hạn mức mới được tạo lượt mượn. |
-| BR-03 | Phạt trễ 5.000 VND mỗi ngày tính phí, không tính ngày nghỉ trong `LIBRARY_HOLIDAYS`, tối đa 100.000 VND cho một lượt mượn. |
-| BR-04 | Chỉ được đặt trước khi không còn bản sao khả dụng. Bản sao trả về được cấp theo FIFO và giữ 48 giờ cho Member đủ điều kiện; nếu hết hạn hoặc Member không đủ điều kiện, bản sao được chuyển cho người tiếp theo. |
-| BR-05 | Một Member chỉ được có một đặt trước đang hoạt động (`WAITING` hoặc `READY`) cho cùng một đầu sách. |
+| `user_accounts` | Tài khoản, vai trò, hạng thành viên và trạng thái hoạt động. |
+| `books`, `book_copies` | Thông tin đầu sách và trạng thái từng bản sao vật lý. |
+| `borrow_requests` | Yêu cầu mượn theo thành viên và đầu sách, kèm trạng thái xử lý. |
+| `loans` | Lượt mượn theo từng bản sao, hạn trả, ngày trả và tiền phạt. |
+| `reservations` | Hàng đợi đặt trước và thời hạn giữ bản sao. |
+| `fine_settlements` | Các lần ghi nhận thanh toán hoặc miễn phạt cho một lượt mượn. |
+
+`loans.request_id` là khóa ngoại có ràng buộc duy nhất và có thể để trống. Duyệt một yêu cầu tạo tối đa một lượt mượn. Lượt mượn tạo khi thành viên nhận sách đã đặt trước có `request_id` trống.
+
+### 3.2.4 – Interface Design
+
+Khách có thể tìm sách và mở chi tiết mà chưa cần đăng nhập. Sau khi đăng nhập, Member có mục **Hoạt động của tôi**. Librarian có menu quản lý yêu cầu, lượt mượn, đặt trước và thành viên.
+
+![Sơ đồ điều hướng giao diện theo vai trò](docs/design/figures/screen-navigation.svg)
+
+[Bản phác thảo các màn hình](docs/design/wireframes.md)
+
+### 3.3.2 – Implemented Functions
+
+| UC | Chức năng và màn hình | Đầu vào | Đầu ra |
+| --- | --- | --- | --- |
+| UC-01 | Đăng ký, đăng nhập và đăng xuất | Thông tin đăng ký hoặc thông tin đăng nhập | Tài khoản Member mới, phiên đăng nhập hoặc phiên đã kết thúc |
+| UC-02 | Quản lý sách và bản sao | Thông tin đầu sách, mã bản sao và trạng thái | Thông tin được lưu hoặc cập nhật. Đầu sách có thể ngừng lưu thông |
+| UC-03 | Tìm sách và mở chi tiết | Từ khóa theo tên, tác giả, ISBN hoặc thể loại | Danh sách kết quả, chi tiết sách và số bản sao khả dụng |
+| UC-04 | Gửi yêu cầu trên trang chi tiết sách | Đầu sách và ghi chú nếu có | Yêu cầu ở trạng thái `PENDING` |
+| UC-05 | Duyệt hoặc từ chối trên trang yêu cầu mượn | Yêu cầu đang chờ và quyết định của thủ thư | Lượt mượn và hạn trả nếu duyệt thành công, hoặc yêu cầu bị từ chối |
+| UC-06 | Ghi nhận trả trên trang lượt mượn | Lượt mượn đang mở | Ngày trả, tiền phạt nếu có và trạng thái bản sao mới |
+| UC-07 | Xem trang Hoạt động của tôi | Tài khoản Member đang đăng nhập | Yêu cầu, lượt mượn, đặt trước và tiền phạt của chính thành viên |
+| UC-08 | Đặt trước trên trang chi tiết sách | Đầu sách chưa có bản sao khả dụng | Đặt trước được ghi vào hàng đợi |
+| UC-09 | Quản lý hồ sơ thành viên | Tên hiển thị, hạng và trạng thái tài khoản | Hồ sơ Member đã cập nhật |
+| UC-10 | Nhận hoặc hủy trong Hoạt động của tôi | Đặt trước của thành viên và thao tác đã chọn | Lượt mượn mới khi nhận sách, hoặc đặt trước đã hủy |
+| UC-11 | Lọc và xử lý phạt trên báo cáo lưu thông | Từ khóa, trạng thái lượt mượn, thao tác thanh toán hoặc miễn phạt và ghi chú | Danh sách đã lọc hoặc giao dịch xử lý phạt được lưu |
+| UC-12 | Xem đầu sách được mượn nhiều | Lượt mượn đã ghi trong hệ thống | Tối đa năm đầu sách xếp theo lượt mượn |
+
+Trong [tầng service](src/main/java/com/elibrary/service/), `BookService` và `BookCopyService` quản lý danh mục, `CirculationService` xử lý mượn trả và `MemberManagementService` quản lý hồ sơ thành viên.
+
+**Tìm sách (UC-03).** Kết quả khi nhập `Robert` trong danh mục mẫu.
+
+![Danh mục E-Library và kết quả tìm theo Robert](docs/screenshots/catalogue.png)
+
+<details>
+<summary>Ảnh đăng nhập, đăng ký Member và chi tiết sách</summary>
+
+**Đăng nhập (UC-01)**
+
+![Giao diện đăng nhập E-Library](docs/screenshots/login.png)
+
+**Đăng ký Member (UC-01)**
+
+![Giao diện đăng ký tài khoản thành viên](docs/screenshots/register.png)
+
+**Chi tiết sách và bản sao (UC-03)**
+
+![Chi tiết sách Clean Code và số bản sao khả dụng](docs/screenshots/book-detail.png)
+
+</details>
+
+[Mã Mermaid của các sơ đồ](docs/design/)
 
 ## Đối chiếu yêu cầu nhóm hai thành viên
 
-Tài liệu đề tài gợi ý 9–12 use case, 12–16 domain class có ý nghĩa, 4–5 business rule và ít nhất 15 test case được ghi nhận. Bài hiện có 12 use case, 12 domain type có ý nghĩa, 5 business rule và 77 test case trong các bảng theo tuần. Bộ kiểm thử tự động gần nhất đạt 89/89 vào ngày 8/11/2026. Nghiệm thu trực tiếp trên trình duyệt và xác nhận dữ liệu production Supabase vẫn cần thực hiện riêng.
+Tài liệu đề tài gợi ý 9–12 UC, 12–16 lớp nghiệp vụ, 4–5 quy tắc và ít nhất 15 ca kiểm thử được ghi nhận. E-Library có **12 UC, 12 kiểu nghiệp vụ (10 class và 2 record), 5 quy tắc và 77 ca kiểm thử** trong tài liệu theo tuần.
 
 ## Công nghệ
 
@@ -97,7 +196,8 @@ Tài liệu đề tài gợi ý 9–12 use case, 12–16 domain class có ý ngh
 
 | Thư mục / file | Nội dung |
 | --- | --- |
-| `docs/design/` | Kiến trúc, ERD, class diagram, use-case diagram, sequence diagram và wireframe. |
+| `docs/design/` | Kiến trúc, sơ đồ Mermaid, ảnh SVG dùng trong README và wireframe. |
+| `docs/screenshots/` | Ảnh minh họa từ ứng dụng chạy local với dữ liệu mẫu. |
 | `docs/use-cases-week*.md` | Use case được chia theo các mốc tuần. |
 | `docs/test-cases-week*.md` | Test case và kết quả kiểm tra theo từng mốc. |
 | `docs/requirements-week2.md` | Functional requirement, non-functional requirement và BR-01–BR-05. |
@@ -139,7 +239,7 @@ Docker Compose giữ dữ liệu MySQL trong volume để lần chạy sau tiế
 
 ## Kiểm thử và trạng thái
 
-Chạy test bằng `mvn test`; chạy cả bước đóng gói bằng `mvn verify`. Bộ test tự động gần nhất được ghi nhận đạt **89/89 vào ngày 8/11/2026**. Các bước nghiệm thu bằng trình duyệt và xác nhận dữ liệu production trên Supabase vẫn cần kiểm tra riêng; xem [checklist nghiệm thu](docs/week9-acceptance.md).
+Chạy `mvn test` để kiểm thử hoặc `mvn verify` để kiểm thử và đóng gói. Lần chạy đã ghi nhận ngày 8/11/2026 đạt **89/89 test tự động**. Kiểm tra trên trình duyệt và xác nhận dữ liệu trên Supabase còn chờ thực hiện. [Checklist nghiệm thu](docs/week9-acceptance.md)
 
 ## Website và repository
 

@@ -1,0 +1,26 @@
+flowchart TB
+    member["Member"]
+    staff["Librarian"]
+    submit("1. Nhận yêu cầu")
+    review("2. Duyệt hoặc từ chối")
+    receive("3. Nhận sách trả")
+    requests[("Yêu cầu mượn")]
+    eligibility[("Thành viên, đầu sách và bản sao")]
+    loans[("Lượt mượn")]
+    reservations[("Hàng đợi đặt trước")]
+
+    member -->|"Đầu sách và ghi chú"| submit
+    eligibility -->|"Trạng thái tài khoản và đầu sách"| submit
+    submit -->|"Yêu cầu chờ duyệt"| requests
+    requests -->|"Yêu cầu cần xử lý"| review
+    staff -->|"Quyết định"| review
+    eligibility -->|"Hạng và bản sao khả dụng"| review
+    loans -->|"Lượt đang mượn và quá hạn"| review
+    review -->|"Trạng thái đã xử lý"| requests
+    review -->|"Lượt mượn và hạn trả"| loans
+    review -->|"Bản sao đang cho mượn"| eligibility
+    staff -->|"Mã lượt mượn"| receive
+    loans -->|"Lượt còn mở và hạn trả"| receive
+    receive -->|"Ngày trả và số tiền phạt"| loans
+    receive -->|"Bản sao khả dụng hoặc được giữ"| eligibility
+    receive -->|"Bản sao phân cho hàng đợi"| reservations
