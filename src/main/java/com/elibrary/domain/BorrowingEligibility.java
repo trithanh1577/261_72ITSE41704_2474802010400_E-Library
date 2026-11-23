@@ -1,6 +1,5 @@
 package com.elibrary.domain;
 
-/** Result of applying the library's member and loan-limit rules. */
 public record BorrowingEligibility(boolean permitted, String reason) {
 
     public static BorrowingEligibility evaluate(UserAccount member, boolean hasOverdueLoan,

@@ -5,7 +5,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-/** Resolves user-facing service messages using the locale selected for the request. */
 @Component
 public class UiMessages {
 

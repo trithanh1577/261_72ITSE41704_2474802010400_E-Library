@@ -158,7 +158,7 @@ classDiagram
     Book "1" --> "0..*" BorrowRequest
     UserAccount "1" --> "0..*" Loan
     BookCopy "1" --> "0..*" Loan
-    BorrowRequest "1" --> "0..1" Loan
+    BorrowRequest "0..1" --> "0..1" Loan
     Loan "1" --> "0..*" FineSettlement
     UserAccount "1" --> "0..*" Reservation
     Book "1" --> "0..*" Reservation

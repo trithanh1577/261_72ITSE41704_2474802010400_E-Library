@@ -40,7 +40,7 @@ erDiagram
       bigint id PK
       bigint member_id FK
       bigint copy_id FK
-      bigint request_id UK
+      bigint request_id FK, UK "Nullable for loans from reservations"
       datetime issued_at
       date due_date
       datetime returned_at
@@ -71,7 +71,7 @@ erDiagram
     BOOKS ||--o{ BORROW_REQUESTS : requested_title
     USER_ACCOUNTS ||--o{ LOANS : borrows
     BOOK_COPIES ||--o{ LOANS : loan_history
-    BORROW_REQUESTS ||--o| LOANS : may_create
+    BORROW_REQUESTS |o--o| LOANS : may_create
     LOANS ||--o{ FINE_SETTLEMENTS : settles
     USER_ACCOUNTS ||--o{ RESERVATIONS : places
     BOOKS ||--o{ RESERVATIONS : requested_title

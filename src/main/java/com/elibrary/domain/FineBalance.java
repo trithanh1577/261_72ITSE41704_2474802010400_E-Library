@@ -2,7 +2,6 @@ package com.elibrary.domain;
 
 import java.math.BigDecimal;
 
-/** Assessed fine and prior settlements for one loan. */
 public final class FineBalance {
 
     private final BigDecimal assessedAmount;

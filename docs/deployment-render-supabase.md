@@ -21,8 +21,7 @@ configure the service and verify a deployment.
    repository root containing `render.yaml`.
 3. During Blueprint setup, enter the requested values for the variables marked
    `sync: false`. Do this in Render's dashboard, not in the YAML file.
-4. For `DB_URL`, enter a JDBC URL, not the raw `postgresql://` connection URI
-   shown by Supabase. For the project values in the supplied screenshot, use:
+4. Set `DB_URL` to a JDBC URL using the host shown under Session pooler in Supabase:
 
    ```text
    jdbc:postgresql://<session-pooler-host>:5432/postgres?sslmode=require
